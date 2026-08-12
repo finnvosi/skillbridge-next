@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { FadeUp, Stagger, StaggerItem } from "@/components/motion";
+import { Tilt } from "@/components/motion";
 import { ClipboardList, ArrowUpRight, Briefcase } from "lucide-react";
 
 const statusFilter: ApplicationStatus[] = ["pending", "accepted", "rejected", "withdrawn"];
@@ -126,7 +127,8 @@ export default function ApplicationsPage() {
         <Stagger className="space-y-4">
           {filtered.map((app) => (
             <StaggerItem key={app.id} as="div">
-              <Card className="group relative overflow-hidden border-gray-200 p-0 shadow-soft transition-all duration-300 hover:shadow-soft-lg">
+              <Tilt intensity={4}>
+                <Card className="group relative overflow-hidden border-gray-200 p-0 shadow-soft transition-all duration-300 hover:shadow-soft-lg">
                 <div className="bg-grain pointer-events-none absolute inset-0 opacity-20 mix-blend-overlay" />
                 <button
                   onClick={() => router.push(`/dashboard/student/projects/${app.projectId}`)}
@@ -153,8 +155,9 @@ export default function ApplicationsPage() {
                     <ArrowUpRight className="h-4 w-4 text-gray-400 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
                   </div>
                 </button>
-              </Card>
-            </StaggerItem>
+                </Card>
+                </Tilt>
+                </StaggerItem>
           ))}
         </Stagger>
       )}

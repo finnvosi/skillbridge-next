@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OpportunityCard } from "@/components/marketplace/opportunity-card";
 import { FadeUp, Stagger, StaggerItem, CountUp, Tilt } from "@/components/motion";
-import { ScaleOnScroll } from "@/components/motion/primitives2";
+import { ScaleOnScroll, Magnetic } from "@/components/motion/primitives2";
 import { ArrowUpRight, Briefcase, CheckCircle2, Users, Sparkles, Compass, ClipboardList } from "lucide-react";
 
 interface DashboardData {
@@ -297,7 +297,7 @@ export default function StudentDashboardPage() {
       ) : (
         <section className="border-t border-gray-200 pt-14">
           <FadeUp>
-            <div className="mx-auto max-w-2xl rounded-3xl border border-gray-200 bg-white/60 p-10 text-center shadow-soft backdrop-blur-xl">
+            <div className="glass-strong mx-auto max-w-2xl rounded-3xl border border-white/70 p-10 text-center shadow-soft">
               <Sparkles className="mx-auto h-8 w-8 text-primary/50" />
               <h2 className="display mt-4 text-3xl">No matches yet</h2>
               <p className="mx-auto mt-2 max-w-sm text-sm text-gray-500">
@@ -378,9 +378,11 @@ export default function StudentDashboardPage() {
             Ready to turn coursework into proof?
           </h2>
           <Link href="/dashboard/student/profile">
-            <Button size="lg" className="bg-white text-primary shadow-soft hover:bg-gray-100">
-              Build your bridge
-            </Button>
+            <Magnetic>
+              <Button size="lg" className="bg-white text-primary shadow-soft hover:bg-gray-100">
+                Build your bridge
+              </Button>
+            </Magnetic>
           </Link>
         </div>
       </section>

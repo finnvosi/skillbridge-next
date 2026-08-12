@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FadeUp, WordReveal, CountUp } from "@/components/motion";
+import { Magnetic } from "@/components/motion/primitives2";
 import { ArrowLeft, MapPin, Wallet, CalendarClock, ShieldCheck, CheckCircle2, ArrowUpRight } from "lucide-react";
 
 const COVER: Record<string, string> = {
@@ -283,10 +284,12 @@ export default function ProjectDetailPage() {
                           {error}
                         </div>
                       )}
-                      <Button onClick={submit} disabled={applying} className="w-full">
-                        {applying ? "Submitting..." : "Submit application"}
-                        {!applying && <ArrowUpRight className="h-4 w-4" />}
-                      </Button>
+                      <Magnetic className="w-full">
+                        <Button onClick={submit} disabled={applying} className="w-full">
+                          {applying ? "Submitting..." : "Submit application"}
+                          {!applying && <ArrowUpRight className="h-4 w-4" />}
+                        </Button>
+                      </Magnetic>
                     </div>
                   )}
                 </div>
