@@ -100,11 +100,10 @@ export default function StudentDashboardPage() {
   return (
     <div className="space-y-10">
       {/* Profile Strength Ring Hero — agency glass */}
-      <Card className="relative overflow-hidden border border-card-border bg-white/70 p-0 shadow-soft-lg backdrop-blur-xl">
-        {/* ambient purple aura */}
-        <div className="glow-purple pointer-events-none absolute inset-0 opacity-60" />
-        <div className="bg-grain-strong pointer-events-none absolute inset-0 opacity-100 mix-blend-overlay" />
-        {/* sheen hairline */}
+      <Card className="relative overflow-hidden border border-card-border bg-white/70 shadow-soft-lg backdrop-blur-xl">
+        {/* soft purple aura, kept subtle so it never fights the text */}
+        <div className="glow-purple pointer-events-none absolute inset-0 opacity-30" />
+        {/* sheen hairline on the glass edge */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
 
         <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
