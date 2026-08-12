@@ -23,6 +23,8 @@ export default function DiscoverPage() {
   const [search, setSearch] = useState("");
   const [type, setType] = useState<ProjectType | "">("");
   const [remoteOnly, setRemoteOnly] = useState(false);
+  const [attestedOnly, setAttestedOnly] = useState(false);
+  const [skills, setSkills] = useState<string[]>([]);
   const [sort, setSort] = useState("newest");
 
   const token = getToken();
@@ -44,10 +46,26 @@ export default function DiscoverPage() {
     })();
   }, [token]);
 
+  const skillFacets = useMemo(() => {
+    const counts = new Map<string, number>();
+    all.forEach((p) =>
+      p.skillsRequired.forEach((s) =>
+        counts.set(s, (counts.get(s) ?? 0) + 1)
+      )
+    );
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12)
+      .map(([s]) => s);
+  }, [all]);
+
   const filtered = useMemo(() => {
     let list = all.filter((p) => {
       if (type && p.type !== type) return false;
       if (remoteOnly && !p.remote) return false;
+      if (attestedOnly && !p.employer?.companyName) return false;
+      if (skills.length > 0 && !skills.every((s) => p.skillsRequired.includes(s)))
+        return false;
       if (search) {
         const q = search.toLowerCase();
         const hay =
@@ -65,7 +83,7 @@ export default function DiscoverPage() {
     if (sort === "budget_desc") list = [...list].sort((a, b) => (b.budget ?? 0) - (a.budget ?? 0));
     if (sort === "budget_asc") list = [...list].sort((a, b) => (a.budget ?? 0) - (b.budget ?? 0));
     return list;
-  }, [all, type, remoteOnly, search, sort]);
+  }, [all, type, remoteOnly, attestedOnly, skills, search, sort]);
 
   return (
     <div className="space-y-12 sm:space-y-16">
@@ -128,7 +146,44 @@ export default function DiscoverPage() {
               />
               Remote only
             </label>
+            <label className="flex items-center gap-2.5 rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-primary/40 hover:text-primary">
+              <input
+                type="checkbox"
+                checked={attestedOnly}
+                onChange={(e) => setAttestedOnly(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              Attested only
+            </label>
           </div>
+
+          {/* Skill facet chips */}
+          {skillFacets.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-gray-100 pt-3">
+              <span className="label-mono-muted mr-1">Skills</span>
+              {skillFacets.map((s) => {
+                const active = skills.includes(s);
+                return (
+                  <button
+                    key={s}
+                    onClick={() =>
+                      setSkills((prev) =>
+                        active ? prev.filter((x) => x !== s) : [...prev, s]
+                      )
+                    }
+                    className={
+                      "rounded-full border px-3 py-1 text-xs font-medium transition-colors " +
+                      (active
+                        ? "border-primary bg-primary text-primary-contrast"
+                        : "border-gray-200 bg-white text-gray-600 hover:border-primary/40 hover:text-primary")
+                    }
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Search + sort row */}
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -169,7 +224,7 @@ export default function DiscoverPage() {
       </FadeUp>
 
       {/* Active filters + count */}
-      {(type || search || remoteOnly) && (
+      {(type || search || remoteOnly || attestedOnly || skills.length > 0) && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="label-mono-muted">Active:</span>
           {type && (
@@ -180,6 +235,23 @@ export default function DiscoverPage() {
               {TYPE_LABELS[type]} ✕
             </button>
           )}
+          {attestedOnly && (
+            <button
+              onClick={() => setAttestedOnly(false)}
+              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              Attested only ✕
+            </button>
+          )}
+          {skills.map((s) => (
+            <button
+              key={s}
+              onClick={() => setSkills((prev) => prev.filter((x) => x !== s))}
+              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              {s} ✕
+            </button>
+          ))}
           {remoteOnly && (
             <button
               onClick={() => setRemoteOnly(false)}
@@ -201,6 +273,8 @@ export default function DiscoverPage() {
               setType("");
               setSearch("");
               setRemoteOnly(false);
+              setAttestedOnly(false);
+              setSkills([]);
             }}
             className="text-xs font-medium text-gray-500 underline hover:text-primary"
           >

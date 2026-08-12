@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiRequest, API_ENDPOINTS, getToken } from "@/lib/api-client";
 import { Project, Application, ApplicationStatus, TYPE_LABELS, STATUS_LABELS } from "@/lib/types";
 import { Card } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, SectionHeader, StatCard } from "@/components/layout/page-header";
 import { FadeUp } from "@/components/motion";
 import { OpportunityCard } from "@/components/marketplace/opportunity-card";
+import { ApplicantCard } from "@/components/marketplace/applicant-card";
 import { Briefcase, Users, Clock, Star } from "lucide-react";
 
 interface ProjectWithCount extends Project {
@@ -23,6 +25,7 @@ export default function EmployerDashboardPage() {
   const [projects, setProjects] = useState<ProjectWithCount[]>([]);
   const [apps, setApps] = useState<Application[]>([]);
   const token = getToken();
+  const router = useRouter();
 
   useEffect(() => {
     if (!token) return;
@@ -124,29 +127,14 @@ export default function EmployerDashboardPage() {
             }
           />
 
-          <div className="divide-y divide-gray-100 rounded-2xl border border-card-border bg-white/70 shadow-soft backdrop-blur-xl">
+          <div className="grid gap-4 sm:grid-cols-2">
             {pendingApps.map((app) => (
-              <div key={app.id} className="flex items-center justify-between gap-4 p-4">
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">
-                    {app.student?.user?.name || "Candidate"}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {app.project?.title || "Opportunity"}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    Applied {new Date(app.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline">
-                    Message
-                  </Button>
-                  <Button size="sm" variant="primary">
-                    Review
-                  </Button>
-                </div>
-              </div>
+              <ApplicantCard
+                key={app.id}
+                app={app}
+                onReview={() => router.push(`/dashboard/employer/projects/${app.projectId}/applicants`)}
+                onMessage={() => router.push(`/dashboard/employer/projects/${app.projectId}/applicants`)}
+              />
             ))}
           </div>
         </section>

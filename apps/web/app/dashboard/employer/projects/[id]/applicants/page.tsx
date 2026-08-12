@@ -5,11 +5,9 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiRequest, API_ENDPOINTS, getToken, ApiError } from '@/lib/api-client';
 import { Application, ApplicationStatus, STATUS_LABELS } from '@/lib/types';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
-import { StatusBadge } from '@/components/ui/status-badge';
+import { ApplicantCard } from "@/components/marketplace/applicant-card";
 
 export default function ApplicantsPage() {
   const { id } = useParams<{ id: string }>();
@@ -98,47 +96,16 @@ export default function ApplicantsPage() {
       ) : (
         <div className="space-y-4">
           {apps.map((a) => (
-            <Card key={a.id}>
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <h3 className="font-semibold text-gray-900">
-                    {a.student?.user?.name || 'Candidate'}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {a.student?.user?.email || ''}
-                  </p>
-                  {a.coverLetter && (
-                    <p className="mt-2 text-sm text-gray-600">{a.coverLetter}</p>
-                  )}
-                  <p className="mt-2 text-xs text-gray-400">
-                    Applied {new Date(a.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <StatusBadge status={a.status as ApplicationStatus} />
-                  {a.status === 'pending' && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        disabled={busy === a.id}
-                        onClick={() => changeStatus(a.id, 'accepted')}
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={busy === a.id}
-                        onClick={() => changeStatus(a.id, 'rejected')}
-                      >
-                        Reject
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
+            <ApplicantCard
+              key={a.id}
+              app={a}
+              busy={busy === a.id}
+              onStatusChange={(applicationId, status) =>
+                changeStatus(applicationId, status)
+              }
+              onReview={() => router.push(`/dashboard/student/projects/${a.projectId}`)}
+              onMessage={() => router.push(`/dashboard/employer/projects/${id}`)}
+            />
           ))}
         </div>
       )}

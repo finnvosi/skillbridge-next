@@ -81,12 +81,22 @@ export function OpportunityCard({
         </div>
 
         <div className="mt-1.5 flex items-center gap-1.5 text-sm text-gray-500">
-          <ShieldCheck className="h-3.5 w-3.5 text-primary/70" />
-          <span className="truncate">{company}</span>
-          <span className="text-gray-300">·</span>
-          <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" />
-            {project.location || (project.remote ? "Remote" : "Onsite")}
+          {project.employer?.companyName ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-primary">
+              <ShieldCheck className="h-3 w-3" /> Attested
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-500">
+              Unverified
+            </span>
+          )}
+          <span className="flex items-center gap-1 truncate">
+            <span className="truncate">{company}</span>
+            <span className="text-gray-300">·</span>
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5" />
+              {project.location || (project.remote ? "Remote" : "Onsite")}
+            </span>
           </span>
         </div>
 
