@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "private": true,
+  "exports": {
+    "./src/app": "./src/app.ts"
+  },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",

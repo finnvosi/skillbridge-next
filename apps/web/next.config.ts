@@ -6,7 +6,9 @@ const nextConfig: NextConfig = {
   // `useContext null` error on this Node/React combo. Disable until fixed.
   reactCompiler: false,
   reactStrictMode: false,
-  // Rewrites /api/v1/* to the backend on port 3001 to avoid CSP issues in dev mode
+  // In dev, proxy /api/v1 to the local Express API on :3001 (started by
+  // `pnpm dev:full`). In production the frontend calls NEXT_PUBLIC_API_URL
+  // directly (the API is deployed as a separate Vercel project).
   async rewrites() {
     return [
       {
