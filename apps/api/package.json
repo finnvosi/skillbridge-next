@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
+    "postinstall": "prisma generate",
     "seed": "ts-node-dev --transpile-only scripts/seed.ts",
     "test": "bash scripts/contract-test.sh",
     "lint": "eslint src --ext ts",
@@ -15,9 +16,6 @@
   },
   "dependencies": {
     "@prisma/client": "^5.10.0",
-    "@skillbridge/config": "workspace:*",
-    "@skillbridge/types": "workspace:*",
-    "@skillbridge/utils": "workspace:*",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

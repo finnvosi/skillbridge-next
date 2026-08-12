@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "pnpm run prisma:generate && pnpm run build",
-  "outputDirectory": "dist",
   "builds": [
     {
       "src": "src/index.serverless.ts",

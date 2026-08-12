@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { jwtConfig } from '@skillbridge/config';
+import { jwtConfig } from "../config";
 
 export interface AuthRequest extends Request {
   user?: {

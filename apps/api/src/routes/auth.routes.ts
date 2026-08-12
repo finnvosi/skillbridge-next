@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
-import { jwtConfig } from '@skillbridge/config';
+import { jwtConfig } from "../config";
 import { prisma } from '../db/prisma';
 import { asyncHandler, validate } from '../middleware/validation';
 import { authenticate, AuthRequest } from '../middleware/auth';

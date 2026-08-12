@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { appConfig } from "@skillbridge/config";
+import { appConfig } from "./config";
 import authRoutes from "./routes/auth.routes";
 import usersRoutes from "./routes/users.routes";
 import projectsRoutes from "./routes/projects.routes";
