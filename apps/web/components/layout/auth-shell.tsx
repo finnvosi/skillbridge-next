@@ -66,7 +66,7 @@ export function AuthShell({
   };
 
   return (
-    <div className="flex min-h-screen bg-white text-gray-900">
+    <div className="flex min-h-dvh bg-white text-gray-900">
       {/* ===== Cinematic brand panel — desktop only ===== */}
       <aside
         className="relative hidden w-1/2 overflow-hidden bg-[#0d0d0d] lg:flex"
@@ -148,7 +148,7 @@ export function AuthShell({
       {/* ===== Form side — textured light field so the glass card has
           something to refract (flat white makes frosted glass invisible) ===== */}
       <main
-        className="relative flex w-full flex-col items-center justify-center overflow-hidden bg-[#F3F3F1] px-5 py-20 sm:px-8 lg:w-1/2 lg:px-16"
+        className="relative flex w-full flex-col items-center overflow-y-auto bg-[#F3F3F1] px-5 py-20 sm:px-8 lg:w-1/2 lg:px-16"
         onPointerMove={onPointerRight}
       >
         {/* ambient purple radial + grain behind the card */}
@@ -212,7 +212,7 @@ export function AuthShell({
                   />
                   {/* Layer 4 — translucent inner surface (~10% — the holder reads
                       as glass now, the textured field behind refracts through) */}
-                  <div className="relative rounded-[26px] bg-white/10 p-10 sm:p-14">
+                  <div className="relative rounded-[26px] bg-white/10 p-6 sm:p-10 lg:p-14">
                     {children}
                   </div>
                 </div>
