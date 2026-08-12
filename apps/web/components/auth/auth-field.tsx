@@ -51,7 +51,7 @@ export function AuthField({
   const { score, label: strengthLabel } = showStrength && value ? scorePassword(value) : { score: 0, label: "" };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <div className="flex items-baseline justify-between">
         <label htmlFor={id} className="text-sm font-medium text-gray-700">
           {label}

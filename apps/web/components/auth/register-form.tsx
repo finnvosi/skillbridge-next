@@ -59,8 +59,8 @@ export function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-9">
-      <Stagger className="space-y-6 sm:space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+      <Stagger className="space-y-4 sm:space-y-5">
         <StaggerItem>
           <AuthField
             id="name"

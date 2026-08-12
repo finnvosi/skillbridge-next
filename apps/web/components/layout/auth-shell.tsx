@@ -148,7 +148,7 @@ export function AuthShell({
       {/* ===== Form side — textured light field so the glass card has
           something to refract (flat white makes frosted glass invisible) ===== */}
       <main
-        className="relative flex w-full flex-col items-center overflow-y-auto bg-[#F3F3F1] px-5 py-20 sm:px-8 lg:w-1/2 lg:px-16"
+        className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-y-auto bg-[#F3F3F1] px-5 py-12 sm:px-8 lg:w-1/2 lg:px-16"
         onPointerMove={onPointerRight}
       >
         {/* ambient purple radial + grain behind the card */}
@@ -174,9 +174,9 @@ export function AuthShell({
             <span className="font-display text-xl font-extrabold text-gray-900">SkillBridge</span>
           </Link>
 
-          <Stagger className="space-y-3">
+          <Stagger className="space-y-2.5">
             <StaggerItem>
-              <h1 className="display text-4xl leading-tight text-gray-900">{title}</h1>
+              <h1 className="display text-3xl leading-tight text-gray-900 sm:text-4xl">{title}</h1>
             </StaggerItem>
             <StaggerItem>
               <p className="text-base text-gray-600">{subtitle}</p>
@@ -186,7 +186,7 @@ export function AuthShell({
               {/* Multi-layer frosted glass card holder — matches the landing
                   glass language (.glass / nav pill). The colored aura behind
                   gives the blur something to refract so it reads as real glass. */}
-              <div className="relative mt-10">
+              <div className="relative mt-7 sm:mt-10">
                 {/* Layer 0 — soft purple/azure aura the glass blurs through */}
                 <div
                   aria-hidden
@@ -212,7 +212,7 @@ export function AuthShell({
                   />
                   {/* Layer 4 — translucent inner surface (~10% — the holder reads
                       as glass now, the textured field behind refracts through) */}
-                  <div className="relative rounded-[26px] bg-white/10 p-6 sm:p-10 lg:p-14">
+                  <div className="relative rounded-[26px] bg-white/10 p-6 sm:p-8 lg:p-10">
                     {children}
                   </div>
                 </div>
