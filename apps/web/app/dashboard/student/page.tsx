@@ -82,7 +82,6 @@ export default function StudentDashboardPage() {
   }, []);
 
   const profileCompletion = Math.min(100, (data.stats.skillsCount / 5) * 20 + 50);
-  const strokeOffset = 345 * (1 - profileCompletion / 100);
 
   if (loading) {
     return (
@@ -99,51 +98,69 @@ export default function StudentDashboardPage() {
 
   return (
     <div className="space-y-10">
-      {/* Profile Strength Ring Hero — agency glass */}
-      <Card className="relative overflow-hidden border border-card-border bg-white/70 shadow-soft-lg backdrop-blur-xl">
-        {/* soft purple aura, kept subtle so it never fights the text */}
-        <div className="glow-purple pointer-events-none absolute inset-0 opacity-30" />
-        {/* sheen hairline on the glass edge */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+      {/* Profile Strength Hero — premium purple anchor for the page */}
+      <Card className="relative overflow-hidden border border-primary/20 bg-gradient-to-br from-primary to-[#5A189A] p-0 shadow-soft-lg">
+        {/* aurora glow + grain for depth */}
+        <div className="glow-purple pointer-events-none absolute inset-0 opacity-40" />
+        <div className="bg-grain pointer-events-none absolute inset-0 opacity-20 mix-blend-overlay" />
+        {/* sheen hairline */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+        {/* soft radial highlight, top-right */}
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
 
-        <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-          <div className="flex items-center gap-5">
-            {/* animated completion ring */}
-            <div className="relative h-20 w-20 shrink-0">
+        <div className="relative flex flex-col gap-8 p-7 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+          <div className="flex items-center gap-6">
+            {/* large animated completion ring */}
+            <div className="relative h-28 w-28 shrink-0 drop-shadow-lg">
               <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-                <circle cx="60" cy="60" r="55" fill="none" stroke="#ECECEA" strokeWidth="8" />
+                <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="9" />
                 <circle
                   cx="60"
                   cy="60"
-                  r="55"
+                  r="52"
                   fill="none"
-                  stroke="#3C096C"
-                  strokeWidth="8"
+                  stroke="#ffffff"
+                  strokeWidth="9"
                   strokeLinecap="round"
-                  strokeDasharray="345"
-                  strokeDashoffset={strokeOffset}
+                  strokeDasharray="327"
+                  strokeDashoffset={327 * (1 - profileCompletion / 100)}
                   className="transition-[stroke-dashoffset] duration-1000 ease-out"
                 />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center font-display text-lg font-extrabold text-primary">
+              <span className="absolute inset-0 flex items-center justify-center font-display text-2xl font-extrabold text-white">
                 {profileCompletion}%
               </span>
             </div>
 
-            <div>
-              <p className="label-mono">Your Bridge</p>
-              <h1 className="display mt-1 text-2xl font-extrabold text-gray-900 sm:text-3xl">
+            <div className="max-w-md">
+              <p className="font-mono text-xs font-medium uppercase tracking-[0.18em] text-white/70">
+                Your Bridge
+              </p>
+              <h1 className="display mt-2 text-3xl font-extrabold text-white sm:text-4xl">
                 Profile strength
               </h1>
-              <p className="mt-1.5 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-white/80 sm:text-base">
                 Your verified skills are your bridge to real opportunities.
+                {profileCompletion < 100 && (
+                  <>
+                    {" "}
+                    <span className="font-medium text-white">
+                      {100 - profileCompletion}% to go
+                    </span>{" "}
+                    — add a few more to unlock stronger matches.
+                  </>
+                )}
               </p>
             </div>
           </div>
 
-          <div className="sm:text-right">
+          <div className="shrink-0 sm:text-right">
             <Link href="/dashboard/student/profile">
-              <Button size="lg" className="w-full sm:w-auto">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full bg-white text-primary hover:bg-white/90 sm:w-auto"
+              >
                 Edit profile
               </Button>
             </Link>
