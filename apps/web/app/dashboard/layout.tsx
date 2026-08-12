@@ -13,9 +13,9 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-canvas">
-        <div className="hidden w-64 border-r border-white/70 bg-white/70 backdrop-blur-xl md:block" />
-        <div className="flex-1 space-y-4 p-8">
+      <div className="flex min-h-screen flex-col bg-canvas">
+        <div className="sticky top-0 z-40 h-16 border-b border-white/70 bg-white/80 backdrop-blur-xl" />
+        <div className="flex-1 space-y-4 px-4 py-8 sm:px-6 lg:px-8">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-32 w-full" />
