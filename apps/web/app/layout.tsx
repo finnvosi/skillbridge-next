@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Urbanist, Poppins } from "next/font/google";
 import "./globals.css";
 import { CursorGlow } from "@/components/layout/cursor-glow";
-import { CustomCursor } from "@/components/layout/custom-cursor";
 import { PreloaderMount } from "@/components/layout/preloader-mount";
 
 // Brand type system: Urbanist for headings (display), Poppins for body.
@@ -40,8 +39,6 @@ export default function RootLayout({
       <body className="relative min-h-full flex flex-col h-full bg-white text-foreground font-sans antialiased">
         {/* Three-layer ambient background: white base + cursor aura + frosted veil */}
         <CursorGlow />
-        {/* Custom agency cursor (dot + trailing ring) */}
-        <CustomCursor />
         <PreloaderMount />
         {children}
       </body>
