@@ -98,7 +98,7 @@ export function DashboardShell({
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas">
+    <div className="flex min-h-0 flex-col bg-canvas">
       {/* ============ TOP MENU BAR ============ */}
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 backdrop-blur-xl">
         <div className="bg-grain pointer-events-none absolute inset-0 opacity-[0.4] mix-blend-overlay" />
@@ -261,7 +261,7 @@ export function DashboardShell({
       </header>
 
       {/* ============ CONTENT ============ */}
-      <main className="relative flex-1 overflow-x-hidden">
+      <main className="relative overflow-x-clip">
         {/* titanium canvas grain so the dashboard belongs to the same world as auth/landing */}
         <div className="bg-grain pointer-events-none absolute inset-0 opacity-[0.45] mix-blend-multiply" />
         <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
