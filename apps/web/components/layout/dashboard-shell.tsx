@@ -24,6 +24,7 @@ import { clearToken } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import type { ApiUser } from "@/lib/api-client";
 import { Footer } from "@/components/layout/footer";
+import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface NavItem {
@@ -100,6 +101,7 @@ export function DashboardShell({
     <div className="flex min-h-0 flex-col bg-canvas">
       {/* ============ TOP MENU BAR ============ */}
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 backdrop-blur-xl">
+        <ScrollProgress />
         <div className="bg-grain pointer-events-none absolute inset-0 opacity-[0.4] mix-blend-overlay" />
         <div className="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Brand */}
