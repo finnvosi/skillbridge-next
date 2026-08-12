@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "buildCommand": "pnpm run prisma:generate && pnpm run build",
+  "outputDirectory": "dist",
+  "builds": [
+    {
+      "src": "src/index.serverless.ts",
+      "use": "@vercel/node@3"
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "src/index.serverless.ts" }
+  ]
+}
