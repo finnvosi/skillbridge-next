@@ -38,7 +38,6 @@ const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", roles: ["student", "employer", "admin"], icon: LayoutDashboard, section: "main" },
   { label: "Discover", href: "/dashboard/student/discover", roles: ["student"], icon: Compass, section: "student" },
   { label: "My Applications", href: "/dashboard/student/applications", roles: ["student"], icon: ClipboardList, section: "student" },
-  { label: "Profile", href: "/dashboard/student/profile", roles: ["student"], icon: User, section: "student" },
   { label: "Opportunities", href: "/dashboard/employer", roles: ["employer"], icon: Briefcase, section: "employer" },
   { label: "Applicants", href: "/dashboard/employer/applicants", roles: ["employer"], icon: Users, section: "employer" },
   { label: "Company", href: "/dashboard/employer/company", roles: ["employer"], icon: Building2, section: "employer" },
