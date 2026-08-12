@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/layout/page-header";
+import { FadeUp, Stagger, StaggerItem, Tilt } from "@/components/motion";
+import { Magnetic } from "@/components/motion/primitives2";
 import {
   AlertCircle,
   User,
@@ -118,44 +120,52 @@ export default function AdminReportsPage() {
           </p>
         </Card>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <Stagger className="space-y-3">
           {filteredReports.map((report) => (
-            <div key={report.id} className="p-4">
-              <div className="flex items-start gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    {getIcon(report.type)}
-                    <h3 className="font-medium text-gray-900">
-                      Report {report.type} #{report.targetId.slice(0, 8)}...
-                    </h3>
-                    <Badge variant="secondary" size="sm">
-                      {getStatusIcon(report.status)}
-                      <span className="ml-1">{report.status}</span>
-                    </Badge>
+            <StaggerItem key={report.id} as="div">
+              <Tilt intensity={3}>
+                <Card className="p-5 shadow-soft transition-all duration-300 hover:shadow-soft-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        {getIcon(report.type)}
+                        <h3 className="font-medium text-gray-900">
+                          Report {report.type} #{report.targetId.slice(0, 8)}...
+                        </h3>
+                        <Badge variant="secondary" size="sm">
+                          {getStatusIcon(report.status)}
+                          <span className="ml-1">{report.status}</span>
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-900 mb-1">{report.reason}</p>
+                      {report.description && (
+                        <p className="text-sm text-gray-600 mb-2">{report.description}</p>
+                      )}
+                      <p className="text-xs text-gray-400">
+                        Reported {report.targetName} on{" "}
+                        {new Date(report.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {report.status === "pending" && (
+                      <div className="flex shrink-0 gap-2">
+                        <Magnetic>
+                          <Button size="sm" variant="outline">
+                            Review
+                          </Button>
+                        </Magnetic>
+                        <Magnetic>
+                          <Button size="sm" variant="secondary">
+                            Dismiss
+                          </Button>
+                        </Magnetic>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-sm text-gray-900 mb-1">{report.reason}</p>
-                  {report.description && (
-                    <p className="text-sm text-gray-600 mb-2">{report.description}</p>
-                  )}
-                  <p className="text-xs text-gray-400">
-                    Reported {report.targetName} on{" "}
-                    {new Date(report.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                {report.status === "pending" && (
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      Review
-                    </Button>
-                    <Button size="sm" variant="secondary">
-                      Dismiss
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
+                </Card>
+              </Tilt>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       )}
     </div>
   );

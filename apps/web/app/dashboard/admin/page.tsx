@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, SectionHeader, StatCard } from "@/components/layout/page-header";
 import { FadeUp } from "@/components/motion";
+import { Tilt } from "@/components/motion";
+import { Magnetic } from "@/components/motion/primitives2";
 import {
   GraduationCap,
   Building2,
@@ -94,54 +96,62 @@ export default function AdminDashboardPage() {
       {/* Action cards */}
       <div className="grid gap-4 sm:grid-cols-3">
         <FadeUp>
-          <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
-            <div className="mb-4 flex items-center gap-3">
-              <ShieldCheck className="h-6 w-6 text-purple-600" />
-              <h3 className="display text-lg font-semibold text-gray-900">
-                Verify identities
-              </h3>
-            </div>
-            <p className="mb-4 text-sm text-gray-500">
-              Review pending student and employer verifications.
-            </p>
-            <Button asChild>
-              <a href="/dashboard/admin/verifications">Review pending</a>
-            </Button>
-          </Card>
+          <Tilt intensity={4}>
+            <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
+              <div className="mb-4 flex items-center gap-3">
+                <ShieldCheck className="h-6 w-6 text-purple-600" />
+                <h3 className="display text-lg font-semibold text-gray-900">
+                  Verify identities
+                </h3>
+              </div>
+              <p className="mb-4 text-sm text-gray-500">
+                Review pending student and employer verifications.
+              </p>
+              <Magnetic>
+                <Button asChild>
+                  <a href="/dashboard/admin/verifications">Review pending</a>
+                </Button>
+              </Magnetic>
+            </Card>
+          </Tilt>
         </FadeUp>
 
         <FadeUp delay={0.05}>
-          <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
-            <div className="mb-4 flex items-center gap-3">
-              <Users className="h-6 w-6 text-primary" />
-              <h3 className="display text-lg font-semibold text-gray-900">
-                User management
-              </h3>
-            </div>
-            <p className="mb-4 text-sm text-gray-500">
-              View and manage all user accounts across the platform.
-            </p>
-            <Button asChild variant="outline">
-              <a href="/dashboard/admin/users">Manage users</a>
-            </Button>
-          </Card>
+          <Tilt intensity={4}>
+            <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
+              <div className="mb-4 flex items-center gap-3">
+                <Users className="h-6 w-6 text-primary" />
+                <h3 className="display text-lg font-semibold text-gray-900">
+                  User management
+                </h3>
+              </div>
+              <p className="mb-4 text-sm text-gray-500">
+                View and manage all user accounts across the platform.
+              </p>
+              <Button asChild variant="outline">
+                <a href="/dashboard/admin/users">Manage users</a>
+              </Button>
+            </Card>
+          </Tilt>
         </FadeUp>
 
         <FadeUp delay={0.1}>
-          <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
-            <div className="mb-4 flex items-center gap-3">
-              <AlertCircle className="h-6 w-6 text-amber-600" />
-              <h3 className="display text-lg font-semibold text-gray-900">
-                Report moderation
-              </h3>
-            </div>
-            <p className="mb-4 text-sm text-gray-500">
-              Review and resolve user reports.
-            </p>
-            <Button asChild variant="outline">
-              <a href="/dashboard/admin/reports">View reports</a>
-            </Button>
-          </Card>
+          <Tilt intensity={4}>
+            <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
+              <div className="mb-4 flex items-center gap-3">
+                <AlertCircle className="h-6 w-6 text-amber-600" />
+                <h3 className="display text-lg font-semibold text-gray-900">
+                  Report moderation
+                </h3>
+              </div>
+              <p className="mb-4 text-sm text-gray-500">
+                Review and resolve user reports.
+              </p>
+              <Button asChild variant="outline">
+                <a href="/dashboard/admin/reports">View reports</a>
+              </Button>
+            </Card>
+          </Tilt>
         </FadeUp>
       </div>
 

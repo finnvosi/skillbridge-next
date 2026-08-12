@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/layout/page-header";
+import { FadeUp, Stagger, StaggerItem, Tilt } from "@/components/motion";
+import { Magnetic } from "@/components/motion/primitives2";
 import { Search, User, Shield, Briefcase, GraduationCap, Filter } from "lucide-react";
 
 interface User {
@@ -136,41 +138,47 @@ export default function AdminUsersPage() {
           {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
         </div>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <Stagger className="space-y-3">
           {filteredUsers.map((user) => (
-            <Card key={user.id} className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    {user.avatar ? (
-                      <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      <User className="h-5 w-5 text-gray-500" />
-                    )}
+            <StaggerItem key={user.id} as="div">
+              <Tilt intensity={3}>
+                <Card className="p-4 shadow-soft transition-all duration-300 hover:shadow-soft-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        {user.avatar ? (
+                          <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          <User className="h-5 w-5 text-gray-500" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{user.name}</h3>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <p className="text-xs text-gray-400">
+                          Joined {new Date(user.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={getRoleVariant(user.role)} size="sm">
+                        {getRoleIcon(user.role)}
+                        <span className="ml-1">{user.role}</span>
+                      </Badge>
+                      {user.role !== "admin" && (
+                        <Magnetic>
+                          <Button size="sm" variant="ghost">
+                            Change Role
+                          </Button>
+                        </Magnetic>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">{user.name}</h3>
-                    <p className="text-sm text-gray-500">{user.email}</p>
-                    <p className="text-xs text-gray-400">
-                      Joined {new Date(user.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={getRoleVariant(user.role)} size="sm">
-                    {getRoleIcon(user.role)}
-                    <span className="ml-1">{user.role}</span>
-                  </Badge>
-                  {user.role !== "admin" && (
-                    <Button size="sm" variant="ghost">
-                      Change Role
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
+                </Card>
+              </Tilt>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       )}
 
       {filteredUsers.length === 0 && !loading && (

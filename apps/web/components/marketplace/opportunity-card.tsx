@@ -33,7 +33,12 @@ export function OpportunityCard({
     project.employer?.companyName || project.employer?.user?.name || "Company";
 
   return (
-    <Card className="group flex flex-col overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg">
+    <Card className="group relative flex flex-col overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg">
+      {/* Hover glow sheen — a diagonal light sweep that travels across the card on hover */}
+      <div className="pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent [transform:translateX(-120%)] transition-transform duration-700 ease-out group-hover:[transform:translateX(120%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/10 to-accent/10" />
+      </div>
       {/* Visual cover band — the "gig image" slot (Fiverr/Aceternity pattern) */}
       <div className={`relative h-28 overflow-hidden bg-gradient-to-br ${cover}`}>
         <div className="bg-grain pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay" />

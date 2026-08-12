@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/layout/page-header";
+import { FadeUp, Stagger, StaggerItem, Tilt } from "@/components/motion";
+import { Magnetic } from "@/components/motion/primitives2";
 import { ShieldCheck, User, Building2, GraduationCap } from "lucide-react";
 
 type VerifiableType = "student" | "employer";
@@ -132,25 +134,31 @@ export default function AdminVerificationsPage() {
             <p className="text-gray-600">All students have completed their profiles.</p>
           </Card>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <Stagger className="space-y-3">
             {needsStudentVerification.map((s) => (
-              <div key={s.id} className="flex items-center justify-between gap-4 p-4">
-                <div>
-                  <p className="font-medium text-gray-900">{s.name}</p>
-                  <p className="text-sm text-gray-500">{s.email}</p>
-                  {s.major && <p className="text-xs text-gray-400">{s.major}</p>}
-                </div>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  disabled={verifying === s.id}
-                  onClick={() => handleVerify("student", s.id)}
-                >
-                  {verifying === s.id ? "Verifying…" : "Verify student"}
-                </Button>
-              </div>
+              <StaggerItem key={s.id} as="div">
+                <Tilt intensity={3}>
+                  <Card className="flex items-center justify-between gap-4 p-5 shadow-soft transition-all duration-300 hover:shadow-soft-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">{s.name}</p>
+                      <p className="text-sm text-gray-500">{s.email}</p>
+                      {s.major && <p className="text-xs text-gray-400">{s.major}</p>}
+                    </div>
+                    <Magnetic>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        disabled={verifying === s.id}
+                        onClick={() => handleVerify("student", s.id)}
+                      >
+                        {verifying === s.id ? "Verifying…" : "Verify student"}
+                      </Button>
+                    </Magnetic>
+                  </Card>
+                </Tilt>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         )}
       </section>
 
@@ -169,25 +177,31 @@ export default function AdminVerificationsPage() {
             <p className="text-gray-600">All employers have been verified.</p>
           </Card>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <Stagger className="space-y-3">
             {needsEmployerVerification.map((e) => (
-              <div key={e.id} className="flex items-center justify-between gap-4 p-4">
-                <div>
-                  <p className="font-medium text-gray-900">{e.name}</p>
-                  <p className="text-sm text-gray-500">{e.email}</p>
-                  {e.industry && <p className="text-xs text-gray-400">{e.industry}</p>}
-                </div>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  disabled={verifying === e.id}
-                  onClick={() => handleVerify("employer", e.id)}
-                >
-                  {verifying === e.id ? "Verifying…" : "Verify employer"}
-                </Button>
-              </div>
+              <StaggerItem key={e.id} as="div">
+                <Tilt intensity={3}>
+                  <Card className="flex items-center justify-between gap-4 p-5 shadow-soft transition-all duration-300 hover:shadow-soft-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">{e.name}</p>
+                      <p className="text-sm text-gray-500">{e.email}</p>
+                      {e.industry && <p className="text-xs text-gray-400">{e.industry}</p>}
+                    </div>
+                    <Magnetic>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        disabled={verifying === e.id}
+                        onClick={() => handleVerify("employer", e.id)}
+                      >
+                        {verifying === e.id ? "Verifying…" : "Verify employer"}
+                      </Button>
+                    </Magnetic>
+                  </Card>
+                </Tilt>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         )}
       </section>
     </div>
