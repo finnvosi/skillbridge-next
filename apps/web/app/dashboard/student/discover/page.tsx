@@ -4,8 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import { apiRequest, API_ENDPOINTS, getToken } from "@/lib/api-client";
 import { Project, ProjectType, TYPE_LABELS } from "@/lib/types";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { OpportunityCard } from "@/components/marketplace/opportunity-card";
@@ -91,53 +89,37 @@ export default function DiscoverPage() {
         </FadeUp>
       </section>
 
-      {/* ============ FILTERS — frosted bar ============ */}
+      {/* ============ FILTERS — Upwork-style rail ============ */}
       <FadeUp>
         <Card className="border-gray-200 p-4 shadow-soft sm:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-            <div className="flex-1 space-y-1.5">
-              <label className="label-mono-muted flex items-center gap-1.5">
-                <Search className="h-3.5 w-3.5" /> Search
-              </label>
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Title, skill, or company..."
-              />
-            </div>
-
-            <div className="w-full space-y-1.5 sm:w-44">
-              <label className="label-mono-muted">Type</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value as ProjectType | "")}
-                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          {/* Type quick-filter rail */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setType("")}
+              className={
+                "rounded-full border px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] transition-colors " +
+                (type === ""
+                  ? "border-primary bg-primary text-primary-contrast"
+                  : "border-gray-200 bg-white text-gray-600 hover:border-primary/40 hover:text-primary")
+              }
+            >
+              All
+            </button>
+            {TYPES.map((t) => (
+              <button
+                key={t}
+                onClick={() => setType(t)}
+                className={
+                  "rounded-full border px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] transition-colors " +
+                  (type === t
+                    ? "border-primary bg-primary text-primary-contrast"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-primary/40 hover:text-primary")
+                }
               >
-                <option value="">All types</option>
-                {TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {TYPE_LABELS[t]}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="w-full space-y-1.5 sm:w-52">
-              <label className="label-mono-muted">Sort</label>
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                {SORTS.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <label className="flex items-center gap-2.5 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-primary/40 hover:text-primary sm:w-auto">
+                {TYPE_LABELS[t]}
+              </button>
+            ))}
+            <label className="ml-auto flex items-center gap-2.5 rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-primary/40 hover:text-primary">
               <input
                 type="checkbox"
                 checked={remoteOnly}
@@ -147,8 +129,85 @@ export default function DiscoverPage() {
               Remote only
             </label>
           </div>
+
+          {/* Search + sort row */}
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-1 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+              <Search className="h-4 w-4 text-gray-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search title, skill, or company..."
+                className="w-full bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="text-xs font-medium text-gray-400 hover:text-primary"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="label-mono-muted hidden sm:block">Sort</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                {SORTS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </Card>
       </FadeUp>
+
+      {/* Active filters + count */}
+      {(type || search || remoteOnly) && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="label-mono-muted">Active:</span>
+          {type && (
+            <button
+              onClick={() => setType("")}
+              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              {TYPE_LABELS[type]} ✕
+            </button>
+          )}
+          {remoteOnly && (
+            <button
+              onClick={() => setRemoteOnly(false)}
+              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              Remote only ✕
+            </button>
+          )}
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              “{search}” ✕
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setType("");
+              setSearch("");
+              setRemoteOnly(false);
+            }}
+            className="text-xs font-medium text-gray-500 underline hover:text-primary"
+          >
+            Reset all
+          </button>
+        </div>
+      )}
 
       {/* ============ RESULTS ============ */}
       {loading ? (
