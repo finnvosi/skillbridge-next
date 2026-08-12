@@ -6,11 +6,10 @@ import { apiRequest, API_ENDPOINTS, getToken } from "@/lib/api-client";
 import { Project, Application, MatchedProject } from "@/lib/types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader, StatCard } from "@/components/layout/page-header";
+import { PageHeader, SectionHeader, StatCard } from "@/components/layout/page-header";
 import { OpportunityCard } from "@/components/marketplace/opportunity-card";
+import { FadeUp } from "@/components/motion";
 import { Briefcase, Users, CheckCircle2 } from "lucide-react";
 
 interface DashboardData {
@@ -83,6 +82,7 @@ export default function StudentDashboardPage() {
   }, []);
 
   const profileCompletion = Math.min(100, (data.stats.skillsCount / 5) * 20 + 50);
+  const strokeOffset = 345 * (1 - profileCompletion / 100);
 
   if (loading) {
     return (
@@ -98,39 +98,51 @@ export default function StudentDashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Profile Strength Ring Hero */}
-      <Card className="relative overflow-hidden border-none bg-gradient-to-b from-card to-card/90">
-        <div className="absolute right-4 top-4 -z-10 opacity-5">
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-            <circle cx={60} cy={60} r={55} stroke="#F3F3F1" strokeWidth="2" />
-            <circle
-              cx={60}
-              cy={60}
-              r={55}
-              strokeWidth="2"
-              strokeDasharray="345"
-              strokeDashoffset={`345 * (1 - ${profileCompletion} / 100)`}
-              strokeLinecap="round"
-              stroke="#3C096C"
-            />
-          </svg>
-        </div>
+    <div className="space-y-10">
+      {/* Profile Strength Ring Hero — agency glass */}
+      <Card className="relative overflow-hidden border border-card-border bg-white/70 p-0 shadow-soft-lg backdrop-blur-xl">
+        {/* ambient purple aura */}
+        <div className="glow-purple pointer-events-none absolute inset-0 opacity-60" />
+        <div className="bg-grain-strong pointer-events-none absolute inset-0 opacity-100 mix-blend-overlay" />
+        {/* sheen hairline */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
 
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold text-gray-900">
-              Your Bridge
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Your verified skills are your bridge to real opportunities.
-            </p>
-            <p className="mt-4 text-sm text-gray-500">
-              Profile strength: <span className="font-medium text-primary">{profileCompletion}%</span>
-            </p>
+        <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="flex items-center gap-5">
+            {/* animated completion ring */}
+            <div className="relative h-20 w-20 shrink-0">
+              <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+                <circle cx="60" cy="60" r="55" fill="none" stroke="#ECECEA" strokeWidth="8" />
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="55"
+                  fill="none"
+                  stroke="#3C096C"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray="345"
+                  strokeDashoffset={strokeOffset}
+                  className="transition-[stroke-dashoffset] duration-1000 ease-out"
+                />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center font-display text-lg font-extrabold text-primary">
+                {profileCompletion}%
+              </span>
+            </div>
+
+            <div>
+              <p className="label-mono">Your Bridge</p>
+              <h1 className="display mt-1 text-2xl font-extrabold text-gray-900 sm:text-3xl">
+                Profile strength
+              </h1>
+              <p className="mt-1.5 text-sm text-gray-600">
+                Your verified skills are your bridge to real opportunities.
+              </p>
+            </div>
           </div>
 
-          <div className="text-center sm:text-right">
+          <div className="sm:text-right">
             <Link href="/dashboard/student/profile">
               <Button size="lg" className="w-full sm:w-auto">
                 Edit profile
@@ -164,57 +176,69 @@ export default function StudentDashboardPage() {
 
       {/* Matched opportunities with scores */}
       {data.matchedProjects.length > 0 ? (
-        <div>
-          <h2 className="font-display text-2xl font-semibold text-gray-900">
-            Recommended for you
-          </h2>
-          <p className="mt-1 text-gray-500">Matched by your skills, budget & location</p>
-
+        <section>
+          <SectionHeader
+            eyebrow="AI-matched"
+            title="Recommended for you"
+            description="Matched by your skills, budget & location"
+          />
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {data.matchedProjects.map((p) => (
-              <OpportunityCard key={p.id} project={p} />
+            {data.matchedProjects.map((p, i) => (
+              <FadeUp key={p.id} delay={i * 0.05}>
+                <OpportunityCard project={p} />
+              </FadeUp>
             ))}
           </div>
-        </div>
+        </section>
       ) : (
-        <EmptyState
-          title="No matched opportunities yet"
-          description="Complete your profile with skills to get AI-powered matches."
-          actionLabel="Complete profile"
-          onAction={() => (window.location.href = "/dashboard/student/profile")}
-        />
+        <FadeUp>
+          <Card className="border-dashed border-card-border bg-white/50 p-10 text-center backdrop-blur-sm">
+            <h3 className="display text-xl font-semibold text-gray-900">
+              No matched opportunities yet
+            </h3>
+            <p className="mx-auto mt-2 max-w-sm text-sm text-gray-500">
+              Complete your profile with skills to get AI-powered matches.
+            </p>
+            <Link href="/dashboard/student/profile" className="mt-5 inline-block">
+              <Button variant="outline">Complete profile</Button>
+            </Link>
+          </Card>
+        </FadeUp>
       )}
 
       {/* Quick links */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <div className="p-6">
-            <h3 className="font-display text-lg font-semibold text-gray-900">
-              My Applications
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Track the status of your applications.
-            </p>
-            <Button asChild className="mt-4 w-full">
-              <Link href="/dashboard/student/applications">View all</Link>
-            </Button>
-          </div>
-        </Card>
+      <section>
+        <SectionHeader eyebrow="Shortcuts" title="Jump back in" />
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <FadeUp>
+            <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
+              <h3 className="display text-lg font-semibold text-gray-900">
+                My Applications
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Track the status of your applications.
+              </p>
+              <Button asChild className="mt-4 w-full">
+                <Link href="/dashboard/student/applications">View all</Link>
+              </Button>
+            </Card>
+          </FadeUp>
 
-        <Card>
-          <div className="p-6">
-            <h3 className="font-display text-lg font-semibold text-gray-900">
-              Discover
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Browse all opportunities and refine your matches.
-            </p>
-            <Button asChild variant="outline" className="mt-4 w-full">
-              <Link href="/dashboard/student/discover">Browse</Link>
-            </Button>
-          </div>
-        </Card>
-      </div>
+          <FadeUp delay={0.05}>
+            <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
+              <h3 className="display text-lg font-semibold text-gray-900">
+                Discover
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Browse all opportunities and refine your matches.
+              </p>
+              <Button asChild variant="outline" className="mt-4 w-full">
+                <Link href="/dashboard/student/discover">Browse</Link>
+              </Button>
+            </Card>
+          </FadeUp>
+        </div>
+      </section>
     </div>
   );
 }

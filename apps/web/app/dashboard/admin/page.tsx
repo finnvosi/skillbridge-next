@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader, StatCard } from "@/components/layout/page-header";
+import { PageHeader, SectionHeader, StatCard } from "@/components/layout/page-header";
+import { FadeUp } from "@/components/motion";
 import {
   GraduationCap,
   Building2,
@@ -92,83 +93,83 @@ export default function AdminDashboardPage() {
 
       {/* Action cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-4">
+        <FadeUp>
+          <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
+            <div className="mb-4 flex items-center gap-3">
               <ShieldCheck className="h-6 w-6 text-purple-600" />
-              <h3 className="font-display text-lg font-semibold text-gray-900">
+              <h3 className="display text-lg font-semibold text-gray-900">
                 Verify identities
               </h3>
             </div>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="mb-4 text-sm text-gray-500">
               Review pending student and employer verifications.
             </p>
             <Button asChild>
               <a href="/dashboard/admin/verifications">Review pending</a>
             </Button>
-          </div>
-        </Card>
+          </Card>
+        </FadeUp>
 
-        <Card>
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-4">
+        <FadeUp delay={0.05}>
+          <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
+            <div className="mb-4 flex items-center gap-3">
               <Users className="h-6 w-6 text-primary" />
-              <h3 className="font-display text-lg font-semibold text-gray-900">
+              <h3 className="display text-lg font-semibold text-gray-900">
                 User management
               </h3>
             </div>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="mb-4 text-sm text-gray-500">
               View and manage all user accounts across the platform.
             </p>
             <Button asChild variant="outline">
               <a href="/dashboard/admin/users">Manage users</a>
             </Button>
-          </div>
-        </Card>
+          </Card>
+        </FadeUp>
 
-        <Card>
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-4">
+        <FadeUp delay={0.1}>
+          <Card className="group h-full bg-white/70 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg">
+            <div className="mb-4 flex items-center gap-3">
               <AlertCircle className="h-6 w-6 text-amber-600" />
-              <h3 className="font-display text-lg font-semibold text-gray-900">
+              <h3 className="display text-lg font-semibold text-gray-900">
                 Report moderation
               </h3>
             </div>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="mb-4 text-sm text-gray-500">
               Review and resolve user reports.
             </p>
             <Button asChild variant="outline">
               <a href="/dashboard/admin/reports">View reports</a>
             </Button>
-          </div>
-        </Card>
+          </Card>
+        </FadeUp>
       </div>
 
       {/* Recent activity */}
       <section>
-        <h2 className="font-display text-2xl font-semibold text-gray-900 mb-4">
-          Recent activity
-        </h2>
+        <SectionHeader eyebrow="Live" title="Recent activity" />
         {activity.length === 0 ? (
           <EmptyState
             title="No recent activity"
             description="The platform will show activity as users engage."
           />
         ) : (
-          <Card>
+          <Card className="border-card-border bg-white/70 shadow-soft backdrop-blur-xl">
             <ul className="divide-y divide-gray-100">
-              {activity.map((a) => (
-                <li key={a.id} className="flex items-center justify-between gap-4 p-4">
-                  <div>
-                    <p className="font-medium text-gray-900">{a.description}</p>
-                    <p className="text-xs text-gray-400">
-                      {new Date(a.timestamp).toLocaleString()}
-                    </p>
-                  </div>
-                  <Badge variant="secondary" size="sm">
-                    {a.type.replace("_", " ")}
-                  </Badge>
-                </li>
+              {activity.map((a, i) => (
+                <FadeUp as="li" key={a.id} delay={i * 0.04}>
+                  <li className="flex items-center justify-between gap-4 p-4">
+                    <div>
+                      <p className="font-medium text-gray-900">{a.description}</p>
+                      <p className="text-xs text-gray-400">
+                        {new Date(a.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                    <Badge variant="secondary" size="sm">
+                      {a.type.replace("_", " ")}
+                    </Badge>
+                  </li>
+                </FadeUp>
               ))}
             </ul>
           </Card>

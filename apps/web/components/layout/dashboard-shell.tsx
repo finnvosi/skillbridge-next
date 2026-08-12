@@ -150,7 +150,11 @@ export function DashboardShell({
           </button>
         </header>
 
-        <main className="relative flex-1 p-4 sm:p-8">{children}</main>
+        <main className="relative flex-1 overflow-x-hidden p-4 sm:p-8">
+          {/* titanium canvas grain so the dashboard belongs to the same world as auth/landing */}
+          <div className="bg-grain pointer-events-none absolute inset-0 opacity-[0.5] mix-blend-multiply" />
+          <div className="relative">{children}</div>
+        </main>
       </div>
     </div>
   );

@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader, StatCard } from "@/components/layout/page-header";
+import { PageHeader, SectionHeader, StatCard } from "@/components/layout/page-header";
+import { FadeUp } from "@/components/motion";
 import { OpportunityCard } from "@/components/marketplace/opportunity-card";
 import { Briefcase, Users, Clock, Star } from "lucide-react";
 
@@ -109,24 +110,21 @@ export default function EmployerDashboardPage() {
       {/* Pending applicants (Talent Pipeline insight) */}
       {pendingApps.length > 0 && (
         <section>
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="font-display text-2xl font-semibold text-gray-900">
-                Talent Pipeline
-              </h2>
-              <p className="text-sm text-gray-500">
-                {needsReview} candidate{needsReview !== 1 ? "s" : ""} awaiting review
-              </p>
-            </div>
-            <Link
-              href="/dashboard/employer/applicants"
-              className="text-sm font-medium text-primary hover:text-primary-hover"
-            >
-              View all applicants
-            </Link>
-          </div>
+          <SectionHeader
+            eyebrow="Talent Pipeline"
+            title="Awaiting your review"
+            description={`${needsReview} candidate${needsReview !== 1 ? "s" : ""} awaiting review`}
+            action={
+              <Link
+                href="/dashboard/employer/applicants"
+                className="text-sm font-medium text-primary hover:text-primary-hover"
+              >
+                View all applicants
+              </Link>
+            }
+          />
 
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 rounded-2xl border border-card-border bg-white/70 shadow-soft backdrop-blur-xl">
             {pendingApps.map((app) => (
               <div key={app.id} className="flex items-center justify-between gap-4 p-4">
                 <div className="flex-1">
@@ -156,17 +154,18 @@ export default function EmployerDashboardPage() {
 
       {/* Opportunities grid */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-2xl font-semibold text-gray-900">
-            Your opportunities
-          </h2>
-          <Link
-            href="/dashboard/employer/projects"
-            className="text-sm font-medium text-primary hover:text-primary-hover"
-          >
-            Manage all
-          </Link>
-        </div>
+        <SectionHeader
+          eyebrow="Opportunities"
+          title="Your opportunities"
+          action={
+            <Link
+              href="/dashboard/employer/projects"
+              className="text-sm font-medium text-primary hover:text-primary-hover"
+            >
+              Manage all
+            </Link>
+          }
+        />
 
         {projects.length === 0 ? (
           <EmptyState
@@ -179,13 +178,14 @@ export default function EmployerDashboardPage() {
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.slice(0, 6).map((p) => (
-              <OpportunityCard
-                key={p.id}
-                project={p}
-                onApply={undefined}
-                showActions={false}
-              />
+            {projects.slice(0, 6).map((p, i) => (
+              <FadeUp key={p.id} delay={i * 0.05}>
+                <OpportunityCard
+                  project={p}
+                  onApply={undefined}
+                  showActions={false}
+                />
+              </FadeUp>
             ))}
           </div>
         )}
