@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
   Compass,
   ClipboardList,
   User,
@@ -40,7 +39,6 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", roles: ["student", "employer", "admin"], icon: LayoutDashboard, section: "main" },
   { label: "Discover", href: "/dashboard/student/discover", roles: ["student"], icon: Compass, section: "student" },
   { label: "My Applications", href: "/dashboard/student/applications", roles: ["student"], icon: ClipboardList, section: "student" },
   { label: "Overview", href: "/dashboard/employer", roles: ["employer"], icon: Briefcase, section: "employer" },
