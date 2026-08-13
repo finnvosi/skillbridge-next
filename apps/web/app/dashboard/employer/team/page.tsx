@@ -122,7 +122,7 @@ export default function TeamPage() {
 
       {/* Owner + teammates */}
       <FadeUp>
-        <Card className="relative overflow-hidden p-0 shadow-soft">
+        <Card className="relative overflow-hidden p-0 shadow-soft stat-soft">
           <div className="bg-grain pointer-events-none absolute inset-0 opacity-20 mix-blend-overlay" />
           <div className="relative p-6">
             <h3 className="display text-lg font-semibold text-gray-900 mb-4">People ({members.length + 1})</h3>
@@ -200,7 +200,7 @@ export default function TeamPage() {
       {/* Invite form */}
       <Stagger className="grid gap-6 lg:grid-cols-2">
         <StaggerItem as="div">
-          <Card className="h-full p-6">
+          <Card className="h-full p-6 stat-soft">
             <h3 className="display text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-primary" /> Invite a teammate
             </h3>
@@ -259,7 +259,7 @@ export default function TeamPage() {
         </StaggerItem>
 
         <StaggerItem as="div">
-          <Card className="h-full p-6">
+          <Card className="h-full p-6 stat-soft">
             <h3 className="display text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Users2 className="h-5 w-5 text-primary" /> Roles & permissions
             </h3>

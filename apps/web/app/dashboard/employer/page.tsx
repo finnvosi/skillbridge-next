@@ -178,7 +178,7 @@ export default function EmployerDashboardPage() {
               {attention.map((a) => (
                 <StaggerItem key={a.applicationId} as="div">
                   <Card
-                    className="flex items-center justify-between gap-4 p-4 shadow-soft transition-all duration-300 hover:shadow-soft-lg"
+                    className="flex items-center justify-between gap-4 p-4 shadow-soft stat-soft transition-all duration-300 hover:shadow-soft-lg"
                   >
                     <div className="min-w-0">
                       <p className="truncate font-medium text-gray-900">{a.candidate}</p>
@@ -207,7 +207,7 @@ export default function EmployerDashboardPage() {
           <h2 className="display flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
             <Clock className="h-5 w-5 text-primary" /> Recent Activity
           </h2>
-          <Card className="divide-y divide-gray-100 p-0">
+          <Card className="divide-y divide-gray-100 p-0 stat-soft">
             {activity.length === 0 ? (
               <div className="p-5 text-gray-500">No recent activity.</div>
             ) : (

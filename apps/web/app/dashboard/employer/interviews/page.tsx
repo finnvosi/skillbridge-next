@@ -78,7 +78,7 @@ export default function EmployerInterviewsPage() {
     const cancelled = iv.status === "cancelled";
     return (
       <Tilt intensity={3}>
-        <Card className="flex h-full flex-col gap-3 p-5 shadow-soft transition-all duration-300 hover:shadow-soft-lg">
+        <Card className="flex h-full flex-col gap-3 p-5 stat-soft shadow-soft transition-all duration-300 hover:shadow-soft-lg">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 font-display text-base font-bold text-primary">

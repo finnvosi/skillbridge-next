@@ -116,7 +116,7 @@ export default function CompanyPage() {
 
       {/* Identity card */}
       <FadeUp>
-        <Card className="relative overflow-hidden p-0 shadow-soft">
+        <Card className="relative overflow-hidden p-0 shadow-soft stat-soft">
           <div className="bg-grain pointer-events-none absolute inset-0 opacity-20 mix-blend-overlay" />
           <div className="relative flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
             <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-white shadow-[0_8px_24px_-8px_rgba(60,9,108,0.6)]">
@@ -148,7 +148,7 @@ export default function CompanyPage() {
       {/* Edit form */}
       <Stagger className="grid gap-6 lg:grid-cols-2">
         <StaggerItem as="div">
-          <Card className="h-full p-6">
+          <Card className="h-full p-6 stat-soft">
             <h3 className="display text-lg font-semibold text-gray-900 mb-4">Company details</h3>
             <div className="space-y-4">
               <div>
@@ -197,7 +197,7 @@ export default function CompanyPage() {
         </StaggerItem>
 
         <StaggerItem as="div">
-          <Card className="h-full p-6">
+          <Card className="h-full p-6 stat-soft">
             <h3 className="display text-lg font-semibold text-gray-900 mb-4">Trust & visibility</h3>
             <ul className="space-y-3 text-sm text-gray-600">
               <li className="flex items-start gap-3">
