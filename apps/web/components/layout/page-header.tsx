@@ -68,18 +68,23 @@ export function SectionHeader({
   );
 }
 
-/** Compact stat tile with an icon — agency glass with a soft purple signal. */
+/** Compact stat tile with an icon — agency glass, or a soft purple gradient
+ *  variant for the important metrics the eye should land on first. */
 export function StatCard({
   icon: Icon,
   label,
   value,
   accent = "text-primary",
+  soft = false,
+  primary = false,
   className,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: ReactNode;
   accent?: string;
+  soft?: boolean;
+  primary?: boolean;
   className?: string;
 }) {
   const numeric = typeof value === "number" ? value : null;
@@ -87,20 +92,36 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-card-border bg-white/70 p-5 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg",
+        "group relative overflow-hidden rounded-2xl border p-5 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg",
+        soft
+          ? "border-primary/15 bg-gradient-to-br from-white via-[#F7EFFC] to-[#EFE4FA]"
+          : "border-card-border bg-white/70",
+        primary && "border-primary/30",
         className
       )}
     >
       {/* sheen hairline on the glass edge */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-      {/* faint purple aura that blooms on hover (signal only) */}
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+      {/* soft purple aura — blooms on hover for glass, stays gentle for soft */}
+      <div
+        className={cn(
+          "pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-opacity duration-500",
+          soft ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        )}
+      />
+      {/* primary gets a second, deeper wash so it reads as the hero metric */}
+      {primary && (
+        <div className="pointer-events-none absolute -left-10 -bottom-10 h-28 w-28 rounded-full bg-primary-light/15 blur-3xl" />
+      )}
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">{label}</p>
         <span
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10",
+            "flex h-9 w-9 items-center justify-center rounded-xl",
+            soft
+              ? "bg-gradient-to-br from-primary/15 to-primary-light/10"
+              : "bg-primary/10",
             accent
           )}
         >

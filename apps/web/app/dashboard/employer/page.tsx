@@ -111,10 +111,10 @@ export default function EmployerDashboardPage() {
 
       {/* Key metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Briefcase} label="Active Jobs" value={metrics.activeJobs} accent="text-primary" />
-        <StatCard icon={Users} label="Total Applications" value={metrics.totalApplications} accent="text-gray-900" />
-        <StatCard icon={Star} label="Shortlisted" value={metrics.shortlisted} accent="text-purple-600" />
-        <StatCard icon={CheckCircle2} label="Hires in Progress" value={metrics.hiresInProgress} accent="text-green-600" />
+        <StatCard icon={Briefcase} label="Active Jobs" value={metrics.activeJobs} accent="text-primary" soft primary />
+        <StatCard icon={Users} label="Total Applications" value={metrics.totalApplications} accent="text-gray-900" soft />
+        <StatCard icon={Star} label="Shortlisted" value={metrics.shortlisted} accent="text-purple-600" soft />
+        <StatCard icon={CheckCircle2} label="Hires in Progress" value={metrics.hiresInProgress} accent="text-green-600" soft />
       </div>
 
       {/* Hiring pipeline */}
