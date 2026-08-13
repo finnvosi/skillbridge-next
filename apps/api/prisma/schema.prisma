@@ -112,8 +112,27 @@ model Employer {
   interviews     Interview[]
   conversations  Conversation[]
   skillAttestations SkillAttestation[]
+  teamMembers    TeamMember[]
 
   @@index([verified])
+}
+
+// Teammates invited to collaborate on an employer's hiring workspace.
+model TeamMember {
+  id         String   @id @default(cuid())
+  employerId String
+  name       String
+  email      String
+  role       String   @default("recruiter") // recruiter | hiring_manager | admin
+  status     String   @default("invited")   // invited | active
+  invitedById String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  employer Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+
+  @@index([employerId])
+  @@index([email])
 }
 
 model Factory {

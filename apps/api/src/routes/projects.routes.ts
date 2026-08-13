@@ -840,4 +840,79 @@ router.delete(
   })
 );
 
+// ───────────────────────── Team management ─────────────────────────
+const teamInviteSchema = z.object({
+  body: z.object({
+    name: z.string().min(1),
+    email: z.string().email(),
+    role: z.enum(['recruiter', 'hiring_manager', 'admin']).default('recruiter'),
+  }),
+});
+
+// List teammates for the current employer.
+router.get(
+  '/employer/team',
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Employer access required' });
+    }
+    const employer = await prisma.employer.findUnique({ where: { userId: req.user!.id } });
+    if (!employer) return res.status(404).json({ error: 'Employer not found' });
+
+    const members = await prisma.teamMember.findMany({
+      where: { employerId: employer.id },
+      orderBy: { createdAt: 'asc' },
+    });
+    res.json({ members });
+  })
+);
+
+// Invite a teammate.
+router.post(
+  '/employer/team',
+  authenticate,
+  validate(teamInviteSchema),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Employer access required' });
+    }
+    const employer = await prisma.employer.findUnique({ where: { userId: req.user!.id } });
+    if (!employer) return res.status(404).json({ error: 'Employer not found' });
+
+    const { name, email, role } = req.body;
+    const existing = await prisma.teamMember.findFirst({
+      where: { employerId: employer.id, email: email.toLowerCase() },
+    });
+    if (existing) return res.status(409).json({ error: 'That email is already on your team' });
+
+    const member = await prisma.teamMember.create({
+      data: {
+        employerId: employer.id,
+        name,
+        email: email.toLowerCase(),
+        role,
+        invitedById: req.user!.id,
+      },
+    });
+    res.status(201).json({ message: 'Teammate invited', member });
+  })
+);
+
+// Remove a teammate.
+router.delete(
+  '/employer/team/:id',
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Employer access required' });
+    }
+    const employer = await prisma.employer.findUnique({ where: { userId: req.user!.id } });
+    if (!employer) return res.status(404).json({ error: 'Employer not found' });
+
+    await prisma.teamMember.deleteMany({ where: { id: req.params.id, employerId: employer.id } });
+    res.json({ message: 'Teammate removed' });
+  })
+);
+
 export default router;

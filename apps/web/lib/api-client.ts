@@ -42,6 +42,9 @@ export const API_ENDPOINTS = {
     attestSkill: '/projects/employer/verification/attest',
     revokeAttest: '/projects/employer/verification/attest',
     updateProjectStatus: (id: string) => `/projects/${id}/status`,
+    teamList: '/projects/employer/team',
+    teamInvite: '/projects/employer/team',
+    teamRemove: (id: string) => `/projects/employer/team/${id}`,
     employerOverview: '/projects/employer/overview',
     employerCandidates: '/projects/employer/candidates',
     updateApplication: (projectId: string, applicationId: string) =>
