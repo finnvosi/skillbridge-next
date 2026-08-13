@@ -37,6 +37,7 @@ export const API_ENDPOINTS = {
     employerProjects: '/projects/employer/projects',
     createProject: '/projects',
     employerApplications: '/projects/employer/applications',
+    analytics: '/projects/employer/analytics',
     employerOverview: '/projects/employer/overview',
     employerCandidates: '/projects/employer/candidates',
     updateApplication: (projectId: string, applicationId: string) =>

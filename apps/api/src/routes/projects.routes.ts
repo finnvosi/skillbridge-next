@@ -581,4 +581,93 @@ router.get(
   })
 );
 
+// Analytics — hiring funnel + KPIs for the employer dashboard.
+router.get(
+  '/employer/analytics',
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Employer access required' });
+    }
+
+    const employer = await prisma.employer.findUnique({
+      where: { userId: req.user!.id },
+    });
+    if (!employer) return res.status(404).json({ error: 'Employer not found' });
+
+    const projects = await prisma.project.findMany({
+      where: { employerId: employer.id },
+      select: { id: true, title: true, status: true },
+    });
+    const projectIds = projects.map((p) => p.id);
+
+    const [applications, interviewCount, openCount] = await Promise.all([
+      prisma.application.findMany({
+        where: { projectId: { in: projectIds } },
+        select: { stage: true, status: true, createdAt: true, projectId: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.interview.count({ where: { employerId: employer.id } }),
+      prisma.project.count({ where: { employerId: employer.id, status: 'open' } }),
+    ]);
+
+    // Funnel by stage.
+    const STAGES = ['applied', 'screening', 'shortlisted', 'interview', 'offer', 'hired'] as const;
+    const stageCounts = STAGES.map((stage) => ({
+      stage,
+      count: applications.filter((a) => a.stage === stage).length,
+    }));
+    const topOfFunnel = stageCounts[0].count || 0;
+
+    // KPIs (all derived from real data).
+    const totalApplicants = applications.length;
+    const shortlisted = stageCounts[2].count;
+    const hired = stageCounts[5].count;
+    const conversion =
+      topOfFunnel > 0 ? Math.round((hired / topOfFunnel) * 100) : 0;
+    const avgPerJob = openCount > 0 ? Math.round((totalApplicants / openCount) * 10) / 10 : 0;
+
+    // 14-day application trend (by day).
+    const days = 14;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const trend = Array.from({ length: days }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - (days - 1 - i));
+      const next = new Date(d);
+      next.setDate(d.getDate() + 1);
+      const count = applications.filter(
+        (a) => a.createdAt >= d && a.createdAt < next
+      ).length;
+      return { date: d.toISOString().slice(0, 10), count };
+    });
+
+    // Top roles by applicant volume.
+    const byProject = new Map<string, number>();
+    for (const a of applications) {
+      byProject.set(a.projectId, (byProject.get(a.projectId) ?? 0) + 1);
+    }
+    const topRoles = projects
+      .map((p) => ({ title: p.title, count: byProject.get(p.id) ?? 0 }))
+      .filter((r) => r.count > 0)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    res.json({
+      kpis: {
+        activeJobs: openCount,
+        totalApplicants,
+        shortlisted,
+        hired,
+        conversion,
+        avgPerJob,
+        interviews: interviewCount,
+      },
+      funnel: stageCounts,
+      trend,
+      topRoles,
+    });
+  })
+);
+
 export default router;
