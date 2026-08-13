@@ -670,4 +670,117 @@ router.get(
   })
 );
 
+// Verification Center — review candidate proof and attest skills (portable proof).
+router.get(
+  '/employer/verification',
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Employer access required' });
+    }
+    const employer = await prisma.employer.findUnique({ where: { userId: req.user!.id } });
+    if (!employer) return res.status(404).json({ error: 'Employer not found' });
+
+    const projects = await prisma.project.findMany({
+      where: { employerId: employer.id },
+      select: { id: true, skillsRequired: true },
+    });
+    const openSkills = projects.flatMap((p) => p.skillsRequired).map((s) => s.toLowerCase());
+
+    // Candidates = students who applied to this employer's projects.
+    const projectIds = projects.map((p) => p.id);
+    const appliedStudentIds = (
+      await prisma.application.findMany({
+        where: { projectId: { in: projectIds } },
+        select: { studentId: true },
+      })
+    ).map((a) => a.studentId);
+
+    const students = await prisma.student.findMany({
+      where: { id: { in: appliedStudentIds } },
+      include: {
+        user: { select: { name: true, email: true, avatar: true } },
+        certificates: { select: { id: true, title: true, verified: true, fileUrl: true } },
+      },
+    });
+
+    const attestations = await prisma.skillAttestation.findMany({
+      where: { employerId: employer.id },
+    });
+
+    const result = students.map((s) => {
+      const myAttest = attestations.filter((a) => a.studentId === s.id);
+      const skillMatches = (s.skills ?? []).filter((sk) => openSkills.includes(sk.toLowerCase()));
+      return {
+        id: s.id,
+        name: s.user.name,
+        email: s.user.email,
+        avatar: s.user.avatar ?? null,
+        university: s.university ?? null,
+        major: s.major ?? null,
+        skills: s.skills ?? [],
+        skillMatches,
+        certificates: s.certificates,
+        attestedSkills: myAttest.map((a) => ({ skill: a.skill, note: a.note, createdAt: a.createdAt })),
+      };
+    });
+
+    res.json({ candidates: result, openSkills });
+  })
+);
+
+const attestSchema = z.object({
+  body: z.object({
+    studentId: z.string().min(1),
+    skill: z.string().min(1),
+    note: z.string().optional(),
+  }),
+});
+
+// Attest a candidate's skill (employer-signed portable proof).
+router.post(
+  '/employer/verification/attest',
+  authenticate,
+  validate(attestSchema),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Employer access required' });
+    }
+    const employer = await prisma.employer.findUnique({ where: { userId: req.user!.id } });
+    if (!employer) return res.status(404).json({ error: 'Employer not found' });
+    const { studentId, skill, note } = req.body;
+
+    const student = await prisma.student.findUnique({ where: { id: studentId } });
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+
+    const attestation = await prisma.skillAttestation.upsert({
+      where: { employerId_studentId_skill: { employerId: employer.id, studentId, skill } },
+      update: { note: note ?? null },
+      create: { employerId: employer.id, studentId, skill, note: note ?? null },
+    });
+
+    res.status(201).json({ message: 'Skill attested', attestation });
+  })
+);
+
+// Revoke a skill attestation.
+router.delete(
+  '/employer/verification/attest',
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Employer access required' });
+    }
+    const employer = await prisma.employer.findUnique({ where: { userId: req.user!.id } });
+    if (!employer) return res.status(404).json({ error: 'Employer not found' });
+    const { studentId, skill } = req.query as Record<string, string>;
+    if (!studentId || !skill) return res.status(400).json({ error: 'studentId and skill required' });
+
+    await prisma.skillAttestation.deleteMany({
+      where: { employerId: employer.id, studentId, skill },
+    });
+    res.json({ message: 'Attestation revoked' });
+  })
+);
+
 export default router;

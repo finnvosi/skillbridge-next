@@ -85,7 +85,8 @@ model Student {
   applications     Application[]
   aiResumes        AIResume[]
   careerRecs       CareerRecommendation[]
-  certificates     Certificate[]   // <-- NEW
+  certificates     Certificate[]
+  skillAttestations SkillAttestation[]
   interviews       Interview[]
   conversations    Conversation[]
 
@@ -108,6 +109,7 @@ model Employer {
   workExperiences WorkExperience[]
   interviews     Interview[]
   conversations  Conversation[]
+  skillAttestations SkillAttestation[]
 
   @@index([verified])
 }
@@ -286,6 +288,25 @@ model Certificate {
 
   @@index([studentId])
   @@index([verified])
+}
+
+// Employer-signed skill attestation — portable proof that travels with the
+// student. An employer confirms a candidate actually demonstrated a skill,
+// producing verifiable, shareable proof independent of any single platform.
+model SkillAttestation {
+  id           String   @id @default(cuid())
+  employerId   String
+  studentId    String
+  skill        String
+  note         String?
+  createdAt    DateTime @default(now())
+
+  employer Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([employerId, studentId, skill])
+  @@index([studentId])
+  @@index([skill])
 }
 
 model PortfolioItem {

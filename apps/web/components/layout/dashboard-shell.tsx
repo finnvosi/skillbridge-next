@@ -51,6 +51,7 @@ const navItems: NavItem[] = [
   { label: "Messages", href: "/dashboard/employer/messages", roles: ["employer"], icon: MessageSquare, section: "employer" },
   { label: "Applicants", href: "/dashboard/employer/applicants", roles: ["employer"], icon: KanbanSquare, section: "employer" },
   { label: "Analytics", href: "/dashboard/employer/analytics", roles: ["employer"], icon: BarChart3, section: "employer" },
+  { label: "Verification", href: "/dashboard/employer/verification", roles: ["employer"], icon: ShieldCheck, section: "employer" },
   { label: "Company", href: "/dashboard/employer/company", roles: ["employer"], icon: Building2, section: "employer" },
   { label: "Overview", href: "/dashboard/admin", roles: ["admin"], icon: ShieldCheck, section: "admin" },
   { label: "Users", href: "/dashboard/admin/users", roles: ["admin"], icon: Users, section: "admin" },
