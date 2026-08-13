@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/layout/page-header";
 import { FadeUp, Stagger, StaggerItem } from "@/components/motion";
 import { STAGE_LABELS } from "@/lib/types";
-import { Users, UserCheck, Briefcase, TrendingUp, Target, Star, MessageSquare } from "lucide-react";
+import { Users, UserCheck, Briefcase, TrendingUp, Target, Star, MessageSquare, type LucideIcon } from "lucide-react";
 
 interface Analytics {
   kpis: {
@@ -24,7 +24,7 @@ interface Analytics {
   topRoles: { title: string; count: number }[];
 }
 
-const FUNNEL_ICON: Record<string, any> = {
+const FUNNEL_ICON: Record<string, LucideIcon> = {
   applied: Users,
   screening: Star,
   shortlisted: UserCheck,
