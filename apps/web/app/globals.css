@@ -216,3 +216,22 @@
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.7);
 }
+
+/* ===== Fine stat-card surfaces =====
+   Light radiates from the top-right corner so the card reads as *lit*, not
+   flatly tinted. The secondary cards stay near-white with a whisper glow;
+   the hero card gets a deeper dual-corner wash (top-right + bottom-left) so
+   the eye lands there first. Layered over a hairline border + faint grain. */
+.stat-soft {
+  background:
+    radial-gradient(115% 115% at 100% 0%, rgba(123, 44, 191, 0.10), transparent 52%),
+    linear-gradient(180deg, #ffffff 0%, #FAF7FC 100%);
+  border-color: rgba(60, 9, 108, 0.10);
+}
+.stat-hero {
+  background:
+    radial-gradient(125% 125% at 100% 0%, rgba(123, 44, 191, 0.22), transparent 58%),
+    radial-gradient(90% 90% at 0% 100%, rgba(123, 44, 191, 0.08), transparent 60%),
+    linear-gradient(180deg, #FDFBFF 0%, #F2E8FB 100%);
+  border-color: rgba(60, 9, 108, 0.24);
+}

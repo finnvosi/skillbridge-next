@@ -68,8 +68,8 @@ export function SectionHeader({
   );
 }
 
-/** Compact stat tile with an icon — agency glass, or a soft purple gradient
- *  variant for the important metrics the eye should land on first. */
+/** Compact stat tile with an icon — agency glass by default; the important
+ *  metrics take a corner-lit purple gradient (hero gets the strongest wash). */
 export function StatCard({
   icon: Icon,
   label,
@@ -92,35 +92,25 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border p-5 shadow-soft backdrop-blur-xl transition-all duration-300 hover:shadow-soft-lg",
-        soft
-          ? "border-primary/15 bg-gradient-to-br from-white via-[#F7EFFC] to-[#EFE4FA]"
-          : "border-card-border bg-white/70",
-        primary && "border-primary/30",
+        "group relative overflow-hidden rounded-2xl border p-5 shadow-soft transition-all duration-300 hover:shadow-soft-lg",
+        soft ? (primary ? "stat-hero" : "stat-soft") : "border-card-border bg-white/70",
         className
       )}
     >
-      {/* sheen hairline on the glass edge */}
+      {/* sheen hairline on the top edge — glass refraction */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-      {/* soft purple aura — blooms on hover for glass, stays gentle for soft */}
-      <div
-        className={cn(
-          "pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-opacity duration-500",
-          soft ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-        )}
-      />
-      {/* primary gets a second, deeper wash so it reads as the hero metric */}
-      {primary && (
-        <div className="pointer-events-none absolute -left-10 -bottom-10 h-28 w-28 rounded-full bg-primary-light/15 blur-3xl" />
-      )}
+      {/* faint grain so the lit surface isn't flat plastic */}
+      <div className="bg-grain pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay" />
+      {/* corner glow blooms a touch more on hover (signal only) */}
+      <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/15 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
 
-      <div className="flex items-center justify-between">
+      <div className="relative flex items-center justify-between">
         <p className="text-sm text-gray-500">{label}</p>
         <span
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-xl",
             soft
-              ? "bg-gradient-to-br from-primary/15 to-primary-light/10"
+              ? "bg-gradient-to-br from-primary/20 to-primary-light/15 shadow-[0_4px_12px_-4px_rgba(60,9,108,0.35)]"
               : "bg-primary/10",
             accent
           )}
@@ -128,7 +118,7 @@ export function StatCard({
           <Icon className="h-4 w-4" />
         </span>
       </div>
-      <p className={cn("display mt-3 text-3xl", accent)}>
+      <p className={cn("relative display mt-3 text-3xl", accent)}>
         {numeric !== null ? (
           <CountUpValue value={numeric} />
         ) : (
