@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -66,6 +66,13 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+function profileHref(role?: string) {
+  if (role === "student") return "/dashboard/student/profile";
+  if (role === "employer") return "/dashboard/employer/company";
+  if (role === "admin") return "/dashboard/admin";
+  return "/dashboard";
+}
+
 export function DashboardShell({
   user,
   children,
@@ -79,21 +86,54 @@ export function DashboardShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const items = navItems.filter((i) => !user || i.roles.includes(user.role));
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  const items = useMemo(
+    () => navItems.filter((i) => !user || i.roles.includes(user.role)),
+    [user]
+  );
+
+  // Most-specific route wins (so /dashboard/employer beats /dashboard parent)
+  const activeHref = useMemo(() => {
+    let best = "";
+    for (const i of items) {
+      const match = pathname === i.href || pathname.startsWith(i.href + "/");
+      if (match && i.href.length > best.length) best = i.href;
+    }
+    return best;
+  }, [items, pathname]);
+
+  // ---- Sliding active underline indicator ----
+  const navRef = useRef<HTMLElement>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+
+  const updateIndicator = useCallback(() => {
+    const el = activeHref ? linkRefs.current[activeHref] : null;
+    if (el && navRef.current) {
+      setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+    } else {
+      setIndicator(null);
+    }
+  }, [activeHref]);
+
+  useLayoutEffect(() => {
+    updateIndicator();
+  }, [updateIndicator]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(() => updateIndicator());
+    if (navRef.current) ro.observe(navRef.current);
+    return () => ro.disconnect();
+  }, [updateIndicator]);
 
   const logout = () => {
     clearToken();
     router.push("/auth/login");
   };
 
-  // Close profile dropdown on outside click
+  // Close dropdown on outside click
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
@@ -105,36 +145,53 @@ export function DashboardShell({
     admin: "Admin",
   };
 
+  const dropdownCls =
+    "absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-card-border bg-white p-1.5 shadow-soft-lg";
+
   return (
     <div className="flex min-h-0 flex-col bg-canvas">
       {/* ============ TOP MENU BAR ============ */}
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/80 backdrop-blur-xl">
         <ScrollProgress />
         <div className="bg-grain pointer-events-none absolute inset-0 opacity-[0.4] mix-blend-overlay" />
-        <div className="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* Brand */}
           <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="SkillBridge home">
             <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-primary shadow-[0_6px_18px_-6px_rgba(60,9,108,0.6)]">
               <Image src="/skillbridge-logo.svg" alt="" width={20} height={20} className="h-5 w-5 invert" priority />
             </span>
-            <span className="font-display text-lg font-extrabold tracking-tight text-gray-900">
+            <span className="hidden font-display text-lg font-extrabold tracking-tight text-gray-900 sm:block">
               Skill<span className="text-primary">Bridge</span>
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden items-center gap-1 md:flex">
+          {/* Desktop nav — all items always visible, horizontally scrollable, with sliding active underline */}
+          <nav
+            ref={navRef}
+            className="relative flex min-w-0 flex-1 items-center gap-1 overflow-x-auto scrollbar-none px-1"
+          >
+            {indicator && (
+              <motion.span
+                className="pointer-events-none absolute bottom-0 left-0 h-[2px] rounded-full bg-primary"
+                initial={false}
+                animate={{ left: indicator.left, width: indicator.width }}
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+              />
+            )}
             {items.map((item) => {
               const Icon = item.icon;
-              const active = isActive(item.href);
+              const active = item.href === activeHref;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  ref={(el) => {
+                    linkRefs.current[item.href] = el;
+                  }}
                   className={cn(
-                    "flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] transition-colors",
+                    "relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] transition-colors duration-200",
                     active
-                      ? "bg-primary/10 text-primary"
+                      ? "text-primary"
                       : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                   )}
                 >
@@ -174,14 +231,14 @@ export function DashboardShell({
                       animate={{ y: 0, opacity: 1 }}
                       exit={{ y: -8, opacity: 0 }}
                       transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                      className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-card-border bg-white p-1.5 shadow-soft-lg"
+                      className={dropdownCls}
                     >
                       <div className="border-b border-gray-100 px-3 py-2.5">
                         <p className="truncate text-sm font-semibold text-gray-900">{user.name}</p>
                         <p className="truncate text-xs text-gray-500">{user.email}</p>
                       </div>
                       <Link
-                        href="/dashboard/student/profile"
+                        href={profileHref(user.role)}
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-primary/5 hover:text-primary"
                       >
@@ -204,7 +261,7 @@ export function DashboardShell({
             <button
               type="button"
               onClick={() => setMobileOpen((o) => !o)}
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-label={mobileOpen ? "close menu" : "open menu"}
               aria-expanded={mobileOpen}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/60 bg-white/60 text-gray-700 transition-colors hover:bg-white hover:text-primary md:hidden"
             >
@@ -233,7 +290,7 @@ export function DashboardShell({
                     </p>
                     {secItems.map((item) => {
                       const Icon = item.icon;
-                      const active = isActive(item.href);
+                      const active = item.href === activeHref;
                       return (
                         <Link
                           key={item.href}

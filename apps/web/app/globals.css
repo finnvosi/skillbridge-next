@@ -15,6 +15,15 @@
     0 6px 16px -6px rgba(60, 9, 108, 0.08);
 }
 
+/* Hide scrollbar but keep horizontal scroll (nav overflow on small screens) */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @theme inline {
   /* ===== SkillBridge brand color system (light-mode first) ===== */
   /* Primary brand: deep purple. Used for accents, logos, key CTAs. */
