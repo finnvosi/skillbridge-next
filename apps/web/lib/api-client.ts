@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
     myApplications: '/projects/student/applications',
     match: '/projects/student/match',
     employerProjects: '/projects/employer/projects',
+    createProject: '/projects',
     employerApplications: '/projects/employer/applications',
     employerOverview: '/projects/employer/overview',
     employerCandidates: '/projects/employer/candidates',
