@@ -19,10 +19,12 @@ enum UserRole {
 }
 
 enum ProjectStatus {
+  draft
   open
-  in_progress
+  paused
   completed
   cancelled
+  expired
 }
 
 enum ProjectType {
@@ -144,6 +146,7 @@ model Project {
   employerId     String
   type           ProjectType
   status         ProjectStatus @default(open)
+  publishedAt    DateTime?
   budget         Float?
   startDate      DateTime?
   endDate        DateTime?

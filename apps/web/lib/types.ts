@@ -58,6 +58,43 @@ export const TYPE_LABELS: Record<ProjectType, string> = {
   full_time: 'Full-time',
 };
 
+export type ProjectStatus =
+  | 'draft'
+  | 'open'
+  | 'paused'
+  | 'completed'
+  | 'cancelled'
+  | 'expired';
+
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  draft: 'Draft',
+  open: 'Published',
+  paused: 'Paused',
+  completed: 'Closed',
+  cancelled: 'Cancelled',
+  expired: 'Expired',
+};
+
+// Badge variant per status for the jobs board.
+export const PROJECT_STATUS_VARIANT: Record<ProjectStatus, 'primary' | 'secondary' | 'neutral' | 'outline'> = {
+  draft: 'neutral',
+  open: 'primary',
+  paused: 'outline',
+  completed: 'secondary',
+  cancelled: 'neutral',
+  expired: 'neutral',
+};
+
+// Allowed lifecycle transitions (mirrors the API).
+export const PROJECT_STATUS_TRANSITIONS: Record<ProjectStatus, ProjectStatus[]> = {
+  draft: ['open', 'cancelled'],
+  open: ['paused', 'completed', 'cancelled', 'expired'],
+  paused: ['open', 'cancelled'],
+  completed: ['open'],
+  cancelled: ['draft', 'open'],
+  expired: ['open', 'draft'],
+};
+
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   pending: 'Submitted',
   accepted: 'Accepted',

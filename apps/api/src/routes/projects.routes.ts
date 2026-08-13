@@ -250,6 +250,63 @@ router.post(
   })
 );
 
+// Update project status (employer-owned lifecycle: draft/open/paused/closed/expired).
+const updateProjectStatusSchema = z.object({
+  body: z.object({
+    status: z.enum(['draft', 'open', 'paused', 'completed', 'cancelled', 'expired']),
+  }),
+});
+
+// Allowed transitions for the job lifecycle.
+const STATUS_TRANSITIONS: Record<string, string[]> = {
+  draft: ['open', 'cancelled'],
+  open: ['paused', 'completed', 'cancelled', 'expired'],
+  paused: ['open', 'cancelled'],
+  completed: ['open'],
+  cancelled: ['draft', 'open'],
+  expired: ['open', 'draft'],
+};
+
+router.patch(
+  '/:id/status',
+  authenticate,
+  validate(updateProjectStatusSchema),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Only employers can manage job status' });
+    }
+    const { status } = req.body;
+    const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+
+    const isOwner = await prisma.employer.findFirst({
+      where: { id: project.employerId, userId: req.user!.id },
+    });
+    if (!isOwner) return res.status(403).json({ error: 'Access denied' });
+
+    const allowed = STATUS_TRANSITIONS[project.status] ?? [];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({
+        error: `Cannot move job from "${project.status}" to "${status}"`,
+        allowed,
+      });
+    }
+
+    const data: any = { status };
+    // Publishing sets the published timestamp (first time only).
+    if (status === 'open' && !project.publishedAt) {
+      data.publishedAt = new Date();
+    }
+    // Pausing/expiring a job with an end date in the past => expired.
+    if (status === 'open' && project.endDate && project.endDate < new Date()) {
+      data.status = 'expired';
+    }
+
+    const updated = await prisma.project.update({ where: { id: project.id }, data });
+    res.json({ message: 'Job status updated', project: updated });
+  })
+);
+
 // Apply to project (students only)
 router.post(
   '/:id/apply',

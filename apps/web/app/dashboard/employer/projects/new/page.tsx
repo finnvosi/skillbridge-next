@@ -122,12 +122,13 @@ export default function NewProjectPage() {
             endDate: form.endDate || undefined,
             skillsRequired: form.skillsRequired,
             remote: form.remote,
+            status: "draft",
           },
         }
       );
-      router.push(`/dashboard/employer/projects/${res.project.id}/applicants`);
+      router.push(`/dashboard/employer/projects?new=${res.project.id}`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to publish");
+      setError(err instanceof ApiError ? err.message : "Failed to save draft");
     } finally {
       setSaving(false);
     }
