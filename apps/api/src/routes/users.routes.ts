@@ -235,4 +235,97 @@ router.put(
 );
 
 
+// Talent Search — employers proactively browse the student pool.
+// Returns students matching name/skill/university filters, each with a
+// match score vs the employer's open-role required skills.
+router.get(
+  '/search/talent',
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Employer access required' });
+    }
+
+    const { q, skills, university, page = '1', limit = '24' } = req.query as Record<
+      string,
+      string
+    >;
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+
+    const where: any = {
+      user: { role: 'student' },
+    };
+    if (university) where.university = { contains: university, mode: 'insensitive' };
+    if (skills) {
+      const arr = Array.isArray(skills) ? (skills as string[]) : [skills];
+      where.skills = { hasSome: arr };
+    }
+    if (q) {
+      const needle = q.toLowerCase();
+      where.OR = [
+        { user: { name: { contains: needle, mode: 'insensitive' } } },
+        { skills: { hasSome: [needle] } },
+        { university: { contains: needle, mode: 'insensitive' } },
+        { major: { contains: needle, mode: 'insensitive' } },
+      ];
+    }
+
+    const [students, employer, total] = await Promise.all([
+      prisma.student.findMany({
+        where,
+        skip: (pageNum - 1) * limitNum,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+        include: { user: { select: { name: true, email: true, avatar: true } } },
+      }),
+      prisma.employer.findUnique({
+        where: { userId: req.user!.id },
+        include: { projects: { where: { status: 'open' }, select: { skillsRequired: true } } },
+      }),
+      prisma.student.count({ where }),
+    ]);
+
+    // Aggregate the employer's open-role skills to score candidates against.
+    const openSkills = (employer?.projects ?? [])
+      .flatMap((p: any) => p.skillsRequired)
+      .map((s: string) => s.toLowerCase());
+
+    const results = students.map((s) => {
+      const studentSkills = (s.skills ?? []).map((x: string) => x.toLowerCase());
+      const skillMatches = studentSkills.filter((sk: string) => openSkills.includes(sk));
+      // Skill overlap vs employer's open roles (0–100), 0 if no open roles.
+      const matchScore = openSkills.length
+        ? Math.round((skillMatches.length / Math.max(openSkills.length, 1)) * 100)
+        : 0;
+      return {
+        id: s.id,
+        name: s.user.name,
+        email: s.user.email,
+        avatar: s.user.avatar ?? null,
+        university: s.university ?? null,
+        major: s.major ?? null,
+        graduationYear: s.graduationYear ?? null,
+        skills: s.skills ?? [],
+        matchScore,
+        skillMatches,
+      };
+    });
+
+    // Rank by match score (then recency), surfacing best-fit talent first.
+    results.sort((a, b) => b.matchScore - a.matchScore);
+
+    res.json({
+      students: results,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  })
+);
+
+
 export default router;

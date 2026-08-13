@@ -22,6 +22,7 @@ import {
   UserSearch,
   CalendarDays,
   MessageSquare,
+  Search,
 } from "lucide-react";
 import { clearToken } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,7 @@ const navItems: NavItem[] = [
   { label: "Overview", href: "/dashboard/employer", roles: ["employer"], icon: Briefcase, section: "employer" },
   { label: "Jobs", href: "/dashboard/employer/projects", roles: ["employer"], icon: ListChecks, section: "employer" },
   { label: "Candidates", href: "/dashboard/employer/candidates", roles: ["employer"], icon: UserSearch, section: "employer" },
+  { label: "Talent", href: "/dashboard/employer/talent", roles: ["employer"], icon: Search, section: "employer" },
   { label: "Interviews", href: "/dashboard/employer/interviews", roles: ["employer"], icon: CalendarDays, section: "employer" },
   { label: "Messages", href: "/dashboard/employer/messages", roles: ["employer"], icon: MessageSquare, section: "employer" },
   { label: "Applicants", href: "/dashboard/employer/applicants", roles: ["employer"], icon: KanbanSquare, section: "employer" },

@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
   users: {
     profile: '/users/profile',
     updateProfile: '/users/profile',
+    searchTalent: '/users/search/talent',
   },
   projects: {
     list: '/projects',
