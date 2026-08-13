@@ -39,6 +39,16 @@ enum ApplicationStatus {
   withdrawn
 }
 
+// Recruitment pipeline stage (distinct from the decision `status`).
+enum ApplicationStage {
+  applied
+  screening
+  shortlisted
+  interview
+  offer
+  hired
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
@@ -151,6 +161,7 @@ model Application {
   projectId      String
   studentId      String
   status         ApplicationStatus @default(pending)
+  stage          ApplicationStage  @default(applied)
   coverLetter    String?
   proposedBudget Float?
   createdAt      DateTime         @default(now())

@@ -42,6 +42,7 @@ export interface Application {
   coverLetter?: string | null;
   proposedBudget?: number | null;
   status: ApplicationStatus;
+  stage?: string;
   createdAt: string;
   project?: Project;
   student?: {
@@ -62,4 +63,30 @@ export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   accepted: 'Accepted',
   rejected: 'Rejected',
   withdrawn: 'Withdrawn',
+};
+
+export type ApplicationStage =
+  | 'applied'
+  | 'screening'
+  | 'shortlisted'
+  | 'interview'
+  | 'offer'
+  | 'hired';
+
+export const STAGE_ORDER: ApplicationStage[] = [
+  'applied',
+  'screening',
+  'shortlisted',
+  'interview',
+  'offer',
+  'hired',
+];
+
+export const STAGE_LABELS: Record<ApplicationStage, string> = {
+  applied: 'Applied',
+  screening: 'Screening',
+  shortlisted: 'Shortlisted',
+  interview: 'Interview',
+  offer: 'Offer',
+  hired: 'Hired',
 };

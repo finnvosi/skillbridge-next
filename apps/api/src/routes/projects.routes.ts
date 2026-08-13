@@ -398,4 +398,187 @@ router.post(
   })
 );
 
+// Get a stage-aware, enriched list of applications for the employer.
+// Returns each application with the candidate's skills + computed match score
+// so the dashboard can show AI Match without a separate call.
+router.get(
+  '/employer/candidates',
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Only employers can view candidates' });
+    }
+    const employer = await prisma.employer.findUnique({ where: { userId: req.user!.id } });
+    if (!employer) return res.status(404).json({ error: 'Employer profile not found' });
+
+    const { stage, projectId, search } = req.query as Record<string, string>;
+
+    const applications = await prisma.application.findMany({
+      where: {
+        project: { employerId: employer.id },
+        ...(stage ? { stage: stage as any } : {}),
+        ...(projectId ? { projectId } : {}),
+        ...(search
+          ? { student: { user: { name: { contains: search, mode: 'insensitive' } } } }
+          : {}),
+      },
+      include: {
+        project: { select: { id: true, title: true, skillsRequired: true } },
+        student: {
+          include: {
+            user: { select: { name: true, email: true, avatar: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const enriched = applications.map((app) => {
+      const studentSkills = (app.student.skills || []).map((s: string) => s.toLowerCase());
+      const jobSkills = (app.project.skillsRequired || []).map((s: string) => s.toLowerCase());
+      const skillMatches = studentSkills.filter((s: string) => jobSkills.includes(s));
+      const matchScore = jobSkills.length
+        ? Math.round((skillMatches.length / jobSkills.length) * 100)
+        : 0;
+      return {
+        ...app,
+        matchScore,
+        skillMatches,
+        student: {
+          id: app.student.id,
+          name: app.student.user.name,
+          email: app.student.user.email,
+          avatar: app.student.user.avatar,
+          skills: app.student.skills,
+          university: app.student.university,
+          major: app.student.major,
+        },
+      };
+    });
+
+    res.json({ applications: enriched });
+  })
+);
+
+// Move an application to a different pipeline stage (owner employer or admin).
+const moveStageSchema = z.object({
+  body: z.object({ stage: z.enum(['applied', 'screening', 'shortlisted', 'interview', 'offer', 'hired']) }),
+});
+router.put(
+  '/:projectId/applications/:applicationId/stage',
+  authenticate,
+  validate(moveStageSchema),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { applicationId, projectId } = req.params;
+    const { stage } = req.body;
+
+    const application = await prisma.application.findUnique({ where: { id: applicationId } });
+    if (!application) return res.status(404).json({ error: 'Application not found' });
+    if (application.projectId !== projectId) {
+      return res.status(400).json({ error: 'Application does not belong to this project' });
+    }
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+
+    const isOwner = await prisma.employer.findFirst({ where: { id: project.employerId, userId: req.user!.id } });
+    if (!isOwner && req.user!.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Hiring decision follows the stage: reaching 'hired' => accepted.
+    const data: any = { stage };
+    if (stage === 'hired') data.status = 'accepted';
+
+    const updated = await prisma.application.update({ where: { id: applicationId }, data });
+    res.json({ message: 'Stage updated', application: updated });
+  })
+);
+
+// Employer overview — command-center aggregate built from real data.
+router.get(
+  '/employer/overview',
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user!.role !== 'employer') {
+      return res.status(403).json({ error: 'Only employers can view the overview' });
+    }
+    const employer = await prisma.employer.findUnique({ where: { userId: req.user!.id } });
+    if (!employer) return res.status(404).json({ error: 'Employer profile not found' });
+
+    const [projects, applications] = await Promise.all([
+      prisma.project.findMany({
+        where: { employerId: employer.id },
+        orderBy: { createdAt: 'desc' },
+        include: { _count: { select: { applications: true } } },
+      }),
+      prisma.application.findMany({
+        where: { project: { employerId: employer.id } },
+        include: {
+          project: { select: { id: true, title: true } },
+          student: { include: { user: { select: { name: true, email: true } } } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+
+    // Pipeline counts per stage.
+    const STAGES = ['applied', 'screening', 'shortlisted', 'interview', 'offer', 'hired'] as const;
+    const pipeline = STAGES.map((s) => ({
+      stage: s,
+      count: applications.filter((a) => a.stage === s).length,
+    }));
+
+    const activeJobs = projects.length;
+    const totalApplications = applications.length;
+    const shortlisted = applications.filter((a) => a.stage === 'shortlisted' || a.stage === 'interview' || a.stage === 'offer').length;
+    const hiresInProgress = applications.filter((a) => a.stage === 'offer' || a.stage === 'hired').length;
+    const needsReview = applications.filter((a) => a.stage === 'applied' || a.stage === 'screening').length;
+
+    // Needs your attention: candidates awaiting first review.
+    const attention = applications
+      .filter((a) => a.stage === 'applied' || a.stage === 'screening')
+      .slice(0, 5)
+      .map((a) => ({
+        applicationId: a.id,
+        candidate: a.student.user.name,
+        email: a.student.user.email,
+        job: a.project.title,
+        projectId: a.project.id,
+        stage: a.stage,
+        appliedAt: a.createdAt,
+      }));
+
+    // Recent activity (derived from applications + job creation).
+    const activity: any[] = [
+      ...applications.slice(0, 8).map((a) => ({
+        type: 'application',
+        text: `${a.student.user.name} applied to ${a.project.title}`,
+        at: a.createdAt,
+        projectId: a.project.id,
+      })),
+      ...projects.slice(0, 4).map((p) => ({
+        type: 'job_published',
+        text: `Job published: ${p.title}`,
+        at: p.createdAt,
+        projectId: p.id,
+      })),
+    ].sort((x, y) => new Date(y.at).getTime() - new Date(x.at).getTime()).slice(0, 8);
+
+    res.json({
+      company: { name: employer.companyName, industry: employer.industry, verified: employer.verified },
+      metrics: {
+        activeJobs,
+        totalApplications,
+        shortlisted,
+        hiresInProgress,
+        needsReview,
+      },
+      pipeline,
+      attention,
+      activity,
+      projects: projects.map((p) => ({ ...p, applicationCount: p._count.applications })),
+    });
+  })
+);
+
 export default router;

@@ -19,6 +19,8 @@ import {
   Menu,
   X,
   ChevronDown,
+  KanbanSquare,
+  UserSearch,
 } from "lucide-react";
 import { clearToken } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -39,8 +41,10 @@ const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", roles: ["student", "employer", "admin"], icon: LayoutDashboard, section: "main" },
   { label: "Discover", href: "/dashboard/student/discover", roles: ["student"], icon: Compass, section: "student" },
   { label: "My Applications", href: "/dashboard/student/applications", roles: ["student"], icon: ClipboardList, section: "student" },
-  { label: "Opportunities", href: "/dashboard/employer", roles: ["employer"], icon: Briefcase, section: "employer" },
-  { label: "Applicants", href: "/dashboard/employer/applicants", roles: ["employer"], icon: Users, section: "employer" },
+  { label: "Overview", href: "/dashboard/employer", roles: ["employer"], icon: Briefcase, section: "employer" },
+  { label: "Jobs", href: "/dashboard/employer/projects", roles: ["employer"], icon: ListChecks, section: "employer" },
+  { label: "Candidates", href: "/dashboard/employer/candidates", roles: ["employer"], icon: UserSearch, section: "employer" },
+  { label: "Applicants", href: "/dashboard/employer/applicants", roles: ["employer"], icon: KanbanSquare, section: "employer" },
   { label: "Company", href: "/dashboard/employer/company", roles: ["employer"], icon: Building2, section: "employer" },
   { label: "Overview", href: "/dashboard/admin", roles: ["admin"], icon: ShieldCheck, section: "admin" },
   { label: "Users", href: "/dashboard/admin/users", roles: ["admin"], icon: Users, section: "admin" },

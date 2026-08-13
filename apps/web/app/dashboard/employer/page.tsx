@@ -4,26 +4,50 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiRequest, API_ENDPOINTS, getToken } from "@/lib/api-client";
-import { Project, Application, ApplicationStatus, TYPE_LABELS, STATUS_LABELS } from "@/lib/types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader, SectionHeader, StatCard } from "@/components/layout/page-header";
-import { FadeUp } from "@/components/motion";
-import { OpportunityCard } from "@/components/marketplace/opportunity-card";
-import { ApplicantCard } from "@/components/marketplace/applicant-card";
-import { Briefcase, Users, Clock, Star } from "lucide-react";
+import { PageHeader, StatCard } from "@/components/layout/page-header";
+import { FadeUp, Stagger, StaggerItem } from "@/components/motion";
+import { Magnetic } from "@/components/motion/primitives2";
+import { STAGE_ORDER, STAGE_LABELS, ApplicationStage } from "@/lib/types";
+import {
+  Briefcase,
+  Users,
+  Star,
+  CheckCircle2,
+  Clock,
+  ArrowUpRight,
+  AlertCircle,
+  Sparkles,
+} from "lucide-react";
 
-interface ProjectWithCount extends Project {
-  _count?: { applications: number };
+interface Overview {
+  company: { name: string; industry?: string | null; verified: boolean };
+  metrics: {
+    activeJobs: number;
+    totalApplications: number;
+    shortlisted: number;
+    hiresInProgress: number;
+    needsReview: number;
+  };
+  pipeline: { stage: ApplicationStage; count: number }[];
+  attention: {
+    applicationId: string;
+    candidate: string;
+    email: string;
+    job: string;
+    projectId: string;
+    stage: ApplicationStage;
+    appliedAt: string;
+  }[];
+  activity: { type: string; text: string; at: string; projectId: string }[];
 }
 
 export default function EmployerDashboardPage() {
   const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState<ProjectWithCount[]>([]);
-  const [apps, setApps] = useState<Application[]>([]);
+  const [data, setData] = useState<Overview | null>(null);
+  const [activeStage, setActiveStage] = useState<ApplicationStage | null>(null);
   const token = getToken();
   const router = useRouter();
 
@@ -31,18 +55,11 @@ export default function EmployerDashboardPage() {
     if (!token) return;
     (async () => {
       try {
-        const [p, a] = await Promise.all([
-          apiRequest<{ projects: ProjectWithCount[] }>(
-            API_ENDPOINTS.projects.employerProjects,
-            { method: "GET", token }
-          ),
-          apiRequest<{ applications: Application[] }>(
-            API_ENDPOINTS.projects.employerApplications,
-            { method: "GET", token }
-          ),
-        ]);
-        setProjects(p.projects ?? []);
-        setApps(a.applications ?? []);
+        const d = await apiRequest<Overview>(API_ENDPOINTS.projects.employerOverview, {
+          method: "GET",
+          token,
+        });
+        setData(d);
       } catch {
         // empty
       } finally {
@@ -51,133 +68,174 @@ export default function EmployerDashboardPage() {
     })();
   }, [token]);
 
-  const pendingApps = apps.filter((a) => a.status === "pending");
-  const needsReview = pendingApps.length;
-
   if (loading) {
     return (
       <div className="space-y-8">
         <Skeleton className="h-8 w-48" />
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
+        <div className="grid gap-4 sm:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-24 w-full" />
+          ))}
         </div>
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
 
+  if (!data) {
+    return (
+      <div className="space-y-8">
+        <PageHeader eyebrow="Employer" title="Talent Pipeline" subtitle="Manage your opportunities." />
+        <Card className="p-8 text-center text-gray-500">No data available.</Card>
+      </div>
+    );
+  }
+
+  const { company, metrics, pipeline, attention, activity } = data;
+  const totalPipeline = pipeline.reduce((s, p) => s + p.count, 0);
+
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Employer"
+        eyebrow={`${company.name}${company.verified ? " · Verified" : ""}`}
         title="Talent Pipeline"
-        subtitle="Discover students and manage your opportunities."
+        subtitle="Your hiring command center — what's happening, what needs you, and what's next."
         actions={
-          <Button asChild>
-            <Link href="/dashboard/employer/projects/new">
-              Post opportunity
-            </Link>
-          </Button>
+          <Magnetic>
+            <Button asChild>
+              <Link href="/dashboard/employer/projects/new">Post opportunity</Link>
+            </Button>
+          </Magnetic>
         }
       />
 
-      {/* Stats row */}
-      <div className="grid gap-4 sm:grid-cols-4">
-        <StatCard
-          icon={Briefcase}
-          label="Active opportunities"
-          value={projects.length}
-          accent="text-primary"
-        />
-        <StatCard
-          icon={Users}
-          label="Total applicants"
-          value={apps.length}
-          accent="text-gray-900"
-        />
-        <StatCard
-          icon={Clock}
-          label="Needs review"
-          value={needsReview}
-          accent="text-amber-600"
-        />
-        <StatCard
-          icon={Star}
-          label="Talent score"
-          value="92"
-          accent="text-purple-600"
-        />
+      {/* Key metrics */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={Briefcase} label="Active Jobs" value={metrics.activeJobs} accent="text-primary" />
+        <StatCard icon={Users} label="Total Applications" value={metrics.totalApplications} accent="text-gray-900" />
+        <StatCard icon={Star} label="Shortlisted" value={metrics.shortlisted} accent="text-purple-600" />
+        <StatCard icon={CheckCircle2} label="Hires in Progress" value={metrics.hiresInProgress} accent="text-green-600" />
       </div>
 
-      {/* Pending applicants (Talent Pipeline insight) */}
-      {pendingApps.length > 0 && (
-        <section>
-          <SectionHeader
-            eyebrow="Talent Pipeline"
-            title="Awaiting your review"
-            description={`${needsReview} candidate${needsReview !== 1 ? "s" : ""} awaiting review`}
-            action={
-              <Link
-                href="/dashboard/employer/applicants"
-                className="text-sm font-medium text-primary hover:text-primary-hover"
-              >
-                View all applicants
-              </Link>
-            }
-          />
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {pendingApps.map((app) => (
-              <ApplicantCard
-                key={app.id}
-                app={app}
-                onReview={() => router.push(`/dashboard/employer/projects/${app.projectId}/applicants`)}
-                onMessage={() => router.push(`/dashboard/employer/projects/${app.projectId}/applicants`)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Opportunities grid */}
+      {/* Hiring pipeline */}
       <section>
-        <SectionHeader
-          eyebrow="Opportunities"
-          title="Your opportunities"
-          action={
+        <h2 className="display text-lg font-semibold text-gray-900 mb-3">Hiring Pipeline</h2>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+          {STAGE_ORDER.map((stage) => {
+            const count = pipeline.find((p) => p.stage === stage)?.count ?? 0;
+            const isActive = activeStage === stage;
+            const pct = totalPipeline ? Math.round((count / totalPipeline) * 100) : 0;
+            return (
+              <button
+                key={stage}
+                onClick={() => setActiveStage(isActive ? null : stage)}
+                className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 ${
+                  isActive
+                    ? "border-primary/40 bg-primary/5 shadow-soft"
+                    : "border-gray-200 bg-white/70 hover:border-primary/30 hover:shadow-soft"
+                }`}
+              >
+                <div className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                  {STAGE_LABELS[stage]}
+                </div>
+                <div className="mt-1 font-display text-2xl font-bold text-gray-900">{count}</div>
+                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary-light to-primary transition-all duration-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        {activeStage && (
+          <p className="mt-2 text-sm text-gray-500">
+            {pipeline.find((p) => p.stage === activeStage)?.count ?? 0} candidate(s) in{" "}
+            <span className="font-medium text-gray-700">{STAGE_LABELS[activeStage]}</span>.{" "}
             <Link
-              href="/dashboard/employer/projects"
-              className="text-sm font-medium text-primary hover:text-primary-hover"
+              href={`/dashboard/employer/candidates?stage=${activeStage}`}
+              className="text-primary hover:underline"
             >
-              Manage all
+              View them →
             </Link>
-          }
-        />
-
-        {projects.length === 0 ? (
-          <EmptyState
-            title="No opportunities posted yet"
-            description="Post your first opportunity to start receiving applications from talented students."
-            actionLabel="Post opportunity"
-            onAction={() => {
-              window.location.href = "/dashboard/employer/projects/new";
-            }}
-          />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.slice(0, 6).map((p, i) => (
-              <FadeUp key={p.id} delay={i * 0.05}>
-                <OpportunityCard
-                  project={p}
-                  onApply={undefined}
-                  showActions={false}
-                />
-              </FadeUp>
-            ))}
-          </div>
+          </p>
         )}
       </section>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Needs your attention */}
+        <section>
+          <h2 className="display flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
+            <AlertCircle className="h-5 w-5 text-amber-500" /> Needs Your Attention
+          </h2>
+          {attention.length === 0 ? (
+            <Card className="flex items-center gap-3 p-5 text-gray-500">
+              <CheckCircle2 className="h-5 w-5 text-green-600" /> All caught up — nothing needs your review.
+            </Card>
+          ) : (
+            <Stagger className="space-y-3">
+              {attention.map((a) => (
+                <StaggerItem key={a.applicationId} as="div">
+                  <Card
+                    className="flex items-center justify-between gap-4 p-4 shadow-soft transition-all duration-300 hover:shadow-soft-lg"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-gray-900">{a.candidate}</p>
+                      <p className="truncate text-sm text-gray-500">
+                        {a.job} · applied {new Date(a.appliedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        router.push(`/dashboard/employer/projects/${a.projectId}/applicants`)
+                      }
+                    >
+                      Review <ArrowUpRight className="h-4 w-4" />
+                    </Button>
+                  </Card>
+                </StaggerItem>
+              ))}
+            </Stagger>
+          )}
+        </section>
+
+        {/* Recent activity */}
+        <section>
+          <h2 className="display flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
+            <Clock className="h-5 w-5 text-primary" /> Recent Activity
+          </h2>
+          <Card className="divide-y divide-gray-100 p-0">
+            {activity.length === 0 ? (
+              <div className="p-5 text-gray-500">No recent activity.</div>
+            ) : (
+              activity.map((ev, i) => (
+                <div key={i} className="flex items-start gap-3 p-4">
+                  <span
+                    className={`mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                      ev.type === "application"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-purple-100 text-purple-700"
+                    }`}
+                  >
+                    {ev.type === "application" ? (
+                      <Users className="h-3.5 w-3.5" />
+                    ) : (
+                      <Sparkles className="h-3.5 w-3.5" />
+                    )}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm text-gray-800">{ev.text}</p>
+                    <p className="text-xs text-gray-400">{new Date(ev.at).toLocaleString()}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </Card>
+        </section>
+      </div>
     </div>
   );
 }
