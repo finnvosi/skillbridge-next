@@ -4,9 +4,13 @@ import { verifyPassword } from '@/lib/auth';
 import { LoginRequest } from '@/types';
 import { cookies } from 'next/headers';
 
+// In dev we authenticate against the local Express API (which talks to the
+// local Postgres seed), so the localhost sandbox uses the same demo accounts
+// as `pnpm dlx tsx apps/api/scripts/seed.ts`. Production keeps using Supabase.
+const IS_DEV = process.env.NODE_ENV !== 'production';
+
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseClient();
     const body: LoginRequest = await request.json();
 
     if (!body.email || !body.password) {
@@ -16,7 +20,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (IS_DEV) {
+      const res = await fetch('http://localhost:3001/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: body.email, password: body.password }),
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid credentials' },
+          { status: 401 }
+        );
+      }
+      const data = await res.json();
+      const u = data.user;
+      const cookieStore = await cookies();
+      cookieStore.set('skillbridge_session', JSON.stringify({
+        userId: u.id,
+        email: u.email,
+        role: u.role,
+      }), {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60,
+      });
+      return NextResponse.json(
+        { success: true, user: { id: u.id, email: u.email, full_name: u.full_name, role: u.role, is_verified: u.is_verified, is_email_verified: u.is_email_verified } },
+        { status: 200 }
+      );
+    }
+
     // Find user by email
+    const supabase = getSupabaseClient();
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('*')

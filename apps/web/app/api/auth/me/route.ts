@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseClient } from '@/lib/supabase';
 import { cookies } from 'next/headers';
 
+const IS_DEV = process.env.NODE_ENV !== 'production';
+
 export async function GET(_request: NextRequest) {
   try {
-    const supabase = getSupabaseClient();
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('skillbridge_session');
 
@@ -25,7 +26,24 @@ export async function GET(_request: NextRequest) {
       );
     }
 
+    // In dev the session cookie already carries the verified user payload
+    // (set by the local API during login), so we return it directly.
+    if (IS_DEV) {
+      return NextResponse.json(
+        {
+          success: true,
+          user: {
+            id: session.userId,
+            email: session.email,
+            role: session.role,
+          },
+        },
+        { status: 200 }
+      );
+    }
+
     // Fetch full user data
+    const supabase = getSupabaseClient();
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
