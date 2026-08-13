@@ -42,6 +42,18 @@ export const API_ENDPOINTS = {
     updateStage: (projectId: string, applicationId: string) =>
       `/projects/${projectId}/applications/${applicationId}/stage`,
   },
+  interviews: {
+    list: '/interviews',
+    schedule: '/interviews',
+    detail: (id: string) => `/interviews/${id}`,
+    feedback: (id: string) => `/interviews/${id}/feedback`,
+  },
+  messages: {
+    conversations: '/messages/conversations',
+    conversation: (id: string) => `/messages/conversations/${id}`,
+    send: (id: string) => `/messages/conversations/${id}/messages`,
+    start: '/messages/conversations',
+  },
   admin: {
     overview: '/admin/overview',
     verifications: '/admin/verifications',

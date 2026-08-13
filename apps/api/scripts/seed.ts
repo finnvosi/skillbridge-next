@@ -120,8 +120,9 @@ async function main() {
     { studentIdx: 3, projectIdx: 5, status: 'pending' },
     { studentIdx: 0, projectIdx: 1, status: 'pending' },
   ];
+  const createdApplications = [];
   for (const a of applications) {
-    await prisma.application.create({
+    const app = await prisma.application.create({
       data: {
         projectId: createdProjects[a.projectIdx].id,
         studentId: createdStudents[a.studentIdx].id,
@@ -129,10 +130,69 @@ async function main() {
         coverLetter: 'I am excited about this opportunity and believe my skills are a strong match.',
       },
     });
+    createdApplications.push(app);
   }
 
+  // Demo interview: Phnom Penh Labs <> Sopanha Vosi for the Frontend Intern role
+  const pplEmployer = createdEmployers[0];
+  const finnStudent = createdStudents[0];
+  const frontendProject = createdProjects[0];
+  const finnApp = createdApplications.find(
+    (a) => a.projectId === frontendProject.id && a.studentId === finnStudent.id
+  )!;
+
+  const interviewAt = new Date();
+  interviewAt.setDate(interviewAt.getDate() + 2); // 2 days from now
+  interviewAt.setHours(9, 30, 0, 0);
+
+  await prisma.interview.create({
+    data: {
+      employerId: pplEmployer.id,
+      studentId: finnStudent.id,
+      projectId: frontendProject.id,
+      applicationId: finnApp.id,
+      scheduledAt: interviewAt,
+      durationMin: 45,
+      type: 'online',
+      status: 'scheduled',
+      meetingLink: 'https://meet.skillbridge.dev/frontend-intern-finn',
+    },
+  });
+
+  // Demo conversation: Phnom Penh Labs <> Sopanha Vosi
+  const conversation = await prisma.conversation.create({
+    data: {
+      employerId: pplEmployer.id,
+      studentId: finnStudent.id,
+      projectId: frontendProject.id,
+      applicationId: finnApp.id,
+      messages: {
+        create: [
+          {
+            senderId: pplEmployer.userId,
+            senderRole: 'employer',
+            body: 'Hi Sopanha — thanks for applying to the Frontend Developer Intern role. We were impressed by your React portfolio!',
+            read: true,
+          },
+          {
+            senderId: finnStudent.userId,
+            senderRole: 'student',
+            body: 'Thank you! I am really excited about the role and would love to learn more about the team.',
+            read: true,
+          },
+          {
+            senderId: pplEmployer.userId,
+            senderRole: 'employer',
+            body: 'Great. I have scheduled an interview for you — you will see it in the Interviews tab. Let me know if the time works.',
+            read: false,
+          },
+        ],
+      },
+    },
+  });
+
   console.log(
-    `✅ Seeded ${students.length} students, ${employers.length} employers, ${projects.length} projects, ${applications.length} applications.`
+    `✅ Seeded ${students.length} students, ${employers.length} employers, ${projects.length} projects, ${applications.length} applications, 1 interview, 1 conversation.`
   );
   console.log('Demo login: any @skillbridge.demo email with password "Password123!"');
 }

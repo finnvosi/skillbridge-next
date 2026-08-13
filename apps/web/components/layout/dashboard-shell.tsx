@@ -21,6 +21,8 @@ import {
   ChevronDown,
   KanbanSquare,
   UserSearch,
+  CalendarDays,
+  MessageSquare,
 } from "lucide-react";
 import { clearToken } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -44,6 +46,8 @@ const navItems: NavItem[] = [
   { label: "Overview", href: "/dashboard/employer", roles: ["employer"], icon: Briefcase, section: "employer" },
   { label: "Jobs", href: "/dashboard/employer/projects", roles: ["employer"], icon: ListChecks, section: "employer" },
   { label: "Candidates", href: "/dashboard/employer/candidates", roles: ["employer"], icon: UserSearch, section: "employer" },
+  { label: "Interviews", href: "/dashboard/employer/interviews", roles: ["employer"], icon: CalendarDays, section: "employer" },
+  { label: "Messages", href: "/dashboard/employer/messages", roles: ["employer"], icon: MessageSquare, section: "employer" },
   { label: "Applicants", href: "/dashboard/employer/applicants", roles: ["employer"], icon: KanbanSquare, section: "employer" },
   { label: "Company", href: "/dashboard/employer/company", roles: ["employer"], icon: Building2, section: "employer" },
   { label: "Overview", href: "/dashboard/admin", roles: ["admin"], icon: ShieldCheck, section: "admin" },

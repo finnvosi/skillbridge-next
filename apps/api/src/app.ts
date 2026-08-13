@@ -8,6 +8,8 @@ import usersRoutes from "./routes/users.routes";
 import projectsRoutes from "./routes/projects.routes";
 import certificatesRoutes from "./routes/certificates.routes";
 import adminRoutes from "./routes/admin.routes";
+import interviewsRoutes from "./routes/interviews.routes";
+import messagesRoutes from "./routes/messages.routes";
 import * as path from "path";
 
 // Build the Express application without starting a listener.
@@ -52,6 +54,8 @@ export function createApp() {
   app.use("/api/v1/projects", projectsRoutes);
   app.use("/api/v1/certificates", certificatesRoutes);
   app.use("/api/v1/admin", adminRoutes);
+  app.use("/api/v1/interviews", interviewsRoutes);
+  app.use("/api/v1/messages", messagesRoutes);
 
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 

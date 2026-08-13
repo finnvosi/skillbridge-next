@@ -86,6 +86,8 @@ model Student {
   aiResumes        AIResume[]
   careerRecs       CareerRecommendation[]
   certificates     Certificate[]   // <-- NEW
+  interviews       Interview[]
+  conversations    Conversation[]
 
   @@index([university])
 }
@@ -104,6 +106,8 @@ model Employer {
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   projects       Project[]
   workExperiences WorkExperience[]
+  interviews     Interview[]
+  conversations  Conversation[]
 
   @@index([verified])
 }
@@ -150,14 +154,100 @@ model Project {
   employer        Employer        @relation(fields: [employerId], references: [id], onDelete: Cascade)
   applications    Application[]
   workExperiences WorkExperience[]
+  interviews      Interview[]
+  conversations   Conversation[]
 
   @@index([employerId])
   @@index([status])
   @@index([type])
 }
 
+model Interview {
+  id           String            @id @default(cuid())
+  employerId   String
+  studentId    String
+  projectId    String
+  applicationId String?
+  scheduledAt  DateTime
+  durationMin  Int               @default(45)
+  type         InterviewType     @default(online)
+  status       InterviewStatus   @default(scheduled)
+  location     String?
+  meetingLink  String?
+  notes        String?
+  // Feedback
+  rating       Int?
+  strengths    String?
+  concerns     String?
+  recommendation InterviewRecommendation?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  employer   Employer   @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  application Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+
+  @@index([employerId])
+  @@index([studentId])
+}
+
+enum InterviewType {
+  online
+  phone
+  onsite
+}
+
+enum InterviewStatus {
+  scheduled
+  completed
+  cancelled
+  rescheduled
+}
+
+enum InterviewRecommendation {
+  strong_hire
+  hire
+  consider
+  reject
+}
+
+// Lightweight employer <-> candidate messaging.
+model Conversation {
+  id        String   @id @default(cuid())
+  employerId String
+  studentId  String
+  projectId  String?
+  applicationId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  messages  Message[]
+
+  employer   Employer    @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  student    Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  project    Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  application Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+
+  @@index([employerId])
+  @@index([studentId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String // user id
+  senderRole     String // 'employer' | 'student'
+  body           String
+  read           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
 model Application {
-  id             String           @id @default(cuid())
+  id            String           @id @default(cuid())
   projectId      String
   studentId      String
   status         ApplicationStatus @default(pending)
@@ -169,6 +259,8 @@ model Application {
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  interviews Interview[]
+  conversations Conversation[]
 
   @@unique([projectId, studentId])
   @@index([projectId])
